@@ -5,6 +5,8 @@
  */
 package view;
 
+import model.Kursus;
+
 /**
  *
  * @author ASUS
@@ -38,9 +40,6 @@ public class formpendaftaranawal extends javax.swing.JFrame {
         jTextField5.setText("");
     }
     
-        private double hitungTotal(double biaya, int jumlah) {
-        return biaya * jumlah;
-    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -242,8 +241,10 @@ public class formpendaftaranawal extends javax.swing.JFrame {
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-            try {
+        try {
             String nama = jTextField1.getText().trim();
+
+            String kursus = jComboBox1.getSelectedItem().toString();
 
             String biayaText = jComboBox2.getSelectedItem().toString();
 
@@ -255,9 +256,9 @@ public class formpendaftaranawal extends javax.swing.JFrame {
                 jTextField5.getText().trim()
             );
 
-            String kursus = jComboBox1.getSelectedItem().toString();
+            Kursus k = new Kursus(kursus, biaya);
 
-            double total = hitungTotal(biaya, jumlah);
+            double total = k.hitungTotal(jumlah);
 
             java.text.NumberFormat rupiah =
                 java.text.NumberFormat.getNumberInstance(
@@ -275,14 +276,13 @@ public class formpendaftaranawal extends javax.swing.JFrame {
             jTextArea1.setText(
                 "========== HASIL PENDAFTARAN ==========\n\n"
                 + "Nama Peserta       : " + nama + "\n"
-                + "Kursus             : " + kursus + "\n"
-                + "Biaya / Pertemuan  : Rp " + rupiah.format(biaya) + "\n"
+                + "Kursus             : " + k.getNama() + "\n"
+                + "Biaya / Pertemuan  : Rp " + rupiah.format(k.getBiaya()) + "\n"
                 + "Jumlah Pertemuan   : " + jumlah + " kali\n"
                 + "Total Biaya        : Rp " + rupiah.format(total)
             );
 
         } catch (NumberFormatException e) {
-
             javax.swing.JOptionPane.showMessageDialog(
                 this,
                 "Jumlah pertemuan harus berupa angka!",
