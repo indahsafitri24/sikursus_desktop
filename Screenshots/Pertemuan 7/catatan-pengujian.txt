@@ -1,0 +1,5 @@
+Catatan Pengujian PBO Pertemuan 7
+
+Pengujian dilakukan pada aplikasi Form Pendaftaran Kursus berbasis Java Swing. Pengujian meliputi validasi nama, kode akses, jenis peserta, pilihan kursus, perhitungan biaya, serta fungsi Reset.
+
+Hasil pengujian dicatat berdasarkan keluaran aplikasi. Pengujian dinyatakan berhasil apabila keluaran sesuai dengan hasil yang diharapkan pada setiap skenario.

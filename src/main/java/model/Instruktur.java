@@ -8,8 +8,7 @@ public class Instruktur extends Orang {
                       String keahlian) {
 
         super(id, nama, noHp);
-
-        this.keahlian = keahlian;
+        setKeahlian(keahlian);
     }
 
     public String getKeahlian() {
@@ -17,7 +16,12 @@ public class Instruktur extends Orang {
     }
 
     public void setKeahlian(String keahlian) {
-        this.keahlian = keahlian;
+        if (keahlian == null || keahlian.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Keahlian instruktur wajib diisi"
+            );
+        }
+        this.keahlian = keahlian.trim();
     }
 
     @Override

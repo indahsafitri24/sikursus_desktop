@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import model.Orang;
 import model.Peserta;
 import model.Instruktur;
+import model.Admin;
 
 public class DemoInheritance {
 
@@ -51,6 +52,15 @@ public class DemoInheritance {
                 "Data Science"
         ));
 
+        // 1 object Admin
+        daftarOrang.add(new Admin(
+                201,
+                "indah safitri",
+                "085261384670",
+                "Pengelola Sistem"
+        ));
+
+        // Menampilkan seluruh data
         System.out.println("=== DATA SIKURSUS ===");
 
         for (Orang orang : daftarOrang) {

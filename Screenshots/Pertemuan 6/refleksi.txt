@@ -1,0 +1,5 @@
+Refleksi Praktikum PBO Pertemuan 6
+
+Pada praktikum ini, saya mempelajari konsep enkapsulasi, inheritance, polymorphism, method overriding, serta penggunaan `instanceof` dalam Java. Saya menerapkan validasi pada atribut melalui setter dan constructor, kemudian menguji data valid maupun tidak valid. Saya juga memahami bahwa objek dari kelas turunan dapat disimpan dalam `List<Orang>` dan memanggil method `getInfo()` sesuai kelas masing-masing.
+
+Kesulitan yang saya temui adalah memahami hubungan antarkelas dan memastikan validasi berjalan dengan benar. Setelah melakukan pengujian, saya menjadi lebih memahami penerapan konsep OOP dalam program Java.
