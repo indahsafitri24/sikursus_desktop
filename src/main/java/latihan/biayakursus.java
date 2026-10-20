@@ -1,3 +1,4 @@
+
 package latihan;
 
 import java.util.Scanner;
@@ -14,8 +15,8 @@ public class biayakursus {
         System.out.println("======================================");
 
         System.out.print(
-                "Masukkan Kode Kursus "
-                + "(JAVA-BSC / WEB-ADV / DS-BSC / UIUX-BSC): "
+            "Masukkan Kode Kursus "
+            + "(JAVA-BSC / WEB-ADV / DS-BSC / UIUX-BSC): "
         );
 
         String kode = input.nextLine().trim().toUpperCase();
@@ -56,25 +57,27 @@ public class biayakursus {
             return;
         }
 
-        // Membuat objek berdasarkan constructor Kursus terbaru
         Kursus kursus = new Kursus(
-                kode,
-                namaKursus,
-                level,
-                biayaDasar
+            kode,
+            namaKursus,
+            level,
+            biayaDasar
         );
 
         int jumlah;
 
+        // Input jumlah kursus dan validasi angka
         while (true) {
             try {
                 System.out.print("Masukkan Jumlah Kursus: ");
 
-                jumlah = Integer.parseInt(input.nextLine().trim());
+                jumlah = Integer.parseInt(
+                    input.nextLine().trim()
+                );
 
                 if (jumlah <= 0) {
                     System.out.println(
-                            "ERROR: Jumlah kursus harus lebih dari 0."
+                        "ERROR: Jumlah kursus harus lebih dari 0."
                     );
                     continue;
                 }
@@ -83,31 +86,28 @@ public class biayakursus {
 
             } catch (NumberFormatException e) {
                 System.out.println(
-                        "ERROR: Jumlah harus berupa angka bulat."
+                    "ERROR: Jumlah harus berupa angka bulat."
                 );
+
+                // Membersihkan sisa input yang tidak valid
+                input.nextLine();
             }
         }
 
-        // Menghitung total biaya dasar
         double totalDasar = kursus.getBiaya() * jumlah;
 
-        // Menghitung biaya fasilitas
         double biayaFasilitas = hitungBiayaFasilitas(kode);
 
-        // Menghitung total biaya sebelum diskon
         double totalKotor = totalDasar + biayaFasilitas;
 
-        // Menghitung diskon berdasarkan total kotor
         double persenDiskon = hitungPersenDiskon(totalKotor);
 
-        // Menggunakan method diskon dari class Kursus
         double totalSetelahDiskon =
-                kursus.hitungBiayaSetelahDiskon(persenDiskon * 100);
+            kursus.hitungBiayaSetelahDiskon(persenDiskon * 100);
 
-        // Menambahkan biaya fasilitas ke total setelah diskon
         double totalAkhir =
-                totalSetelahDiskon * jumlah + biayaFasilitas
-                - (biayaFasilitas * persenDiskon);
+            totalSetelahDiskon * jumlah + biayaFasilitas
+            - (biayaFasilitas * persenDiskon);
 
         double potongan = totalKotor - totalAkhir;
 
@@ -125,40 +125,40 @@ public class biayakursus {
         System.out.println("Jumlah Kursus    : " + jumlah);
 
         System.out.printf(
-                "Biaya Satuan     : Rp%,.0f%n",
-                kursus.getBiaya()
+            "Biaya Satuan     : Rp%,.0f%n",
+            kursus.getBiaya()
         );
 
         System.out.printf(
-                "Total Biaya      : Rp%,.0f%n",
-                totalDasar
+            "Total Biaya      : Rp%,.0f%n",
+            totalDasar
         );
 
         System.out.printf(
-                "Biaya Fasilitas  : Rp%,.0f%n",
-                biayaFasilitas
+            "Biaya Fasilitas  : Rp%,.0f%n",
+            biayaFasilitas
         );
 
         System.out.printf(
-                "Total Kotor      : Rp%,.0f%n",
-                totalKotor
+            "Total Kotor      : Rp%,.0f%n",
+            totalKotor
         );
 
         System.out.printf(
-                "Diskon           : %.0f%%%n",
-                persenDiskon * 100
+            "Diskon           : %.0f%%%n",
+            persenDiskon * 100
         );
 
         System.out.printf(
-                "Potongan         : Rp%,.0f%n",
-                potongan
+            "Potongan         : Rp%,.0f%n",
+            potongan
         );
 
         System.out.println("--------------------------------------");
 
         System.out.printf(
-                "TOTAL BAYAR      : Rp%,.0f%n",
-                totalAkhir
+            "TOTAL BAYAR      : Rp%,.0f%n",
+            totalAkhir
         );
 
         System.out.println("Status           : " + status);
@@ -190,7 +190,7 @@ public class biayakursus {
 
         if (totalKotor < 0) {
             throw new IllegalArgumentException(
-                    "Total biaya tidak boleh negatif"
+                "Total biaya tidak boleh negatif"
             );
         }
 
@@ -209,7 +209,7 @@ public class biayakursus {
 
         if (totalAkhir < 0) {
             throw new IllegalArgumentException(
-                    "Total akhir tidak boleh negatif"
+                "Total akhir tidak boleh negatif"
             );
         }
 
