@@ -18,7 +18,7 @@ public class Instruktur extends Orang {
     public void setKeahlian(String keahlian) {
         if (keahlian == null || keahlian.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                    "Keahlian instruktur wajib diisi"
+                    "Keahlian wajib diisi"
             );
         }
         this.keahlian = keahlian.trim();

@@ -1,53 +1,226 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package latihan;
 
-/**
- *
- * @author ASUS
- */
+import java.util.Scanner;
+import model.Kursus;
+
 public class biayakursus {
-    public static void main(String[] args) {  //main method
-         String kode = "JAVA-BSC";
-        String nama = "Java Desktop Fundamental";
-        double biaya = 2400000;
-        double registrasi = 500000;
-        boolean aktif = true;
 
-        // Total sebelum diskon
-        double totalSebelumDiskon = biaya + registrasi;
+    public static void main(String[] args) {
 
-        // Menentukan diskon dan status
-        double diskon;
-        String status;
+        Scanner input = new Scanner(System.in);
 
-        if (totalSebelumDiskon >= 3500000) {
-            diskon = 0.15;
-            status = "MAHAL";
-        } else if (totalSebelumDiskon >= 1500000 && totalSebelumDiskon <= 3000000) {
-            diskon = 0.10;
-            status = "STANDAR";
-        } else {
-            diskon = 0.05;
-            status = "TERJANGKAU";
+        System.out.println("======================================");
+        System.out.println("       SISTEM KASIR KURSUS IT");
+        System.out.println("======================================");
+
+        System.out.print(
+                "Masukkan Kode Kursus "
+                + "(JAVA-BSC / WEB-ADV / DS-BSC / UIUX-BSC): "
+        );
+
+        String kode = input.nextLine().trim().toUpperCase();
+
+        if (kode.isEmpty()) {
+            System.out.println("ERROR: Kode kursus wajib diisi.");
+            input.close();
+            return;
         }
 
-        double potongan = totalSebelumDiskon * diskon;
-        double total = totalSebelumDiskon - potongan;
+        String namaKursus;
+        String level;
+        double biayaDasar;
 
-        // Output
-        System.out.println("Kode                : " + kode);
-        System.out.println("Kursus              : " + nama);
-        System.out.println("Aktif               : " + aktif);
-        System.out.printf("Biaya Kursus        : Rp%,.0f%n", biaya);
-        System.out.printf("Biaya Registrasi    : Rp%,.0f%n", registrasi);
-        System.out.printf("Total Sebelum Diskon: Rp%,.0f%n", totalSebelumDiskon);
-        System.out.printf("Diskon              : %.0f%%%n", diskon * 100);
-        System.out.printf("Potongan            : Rp%,.0f%n", potongan);
-        System.out.printf("Total Bayar         : Rp%,.0f%n", total);
-        System.out.println("Status              : " + status);
+        if (kode.startsWith("JAVA")) {
+            namaKursus = "Java Desktop";
+            level = "BASIC";
+            biayaDasar = 500000;
+
+        } else if (kode.startsWith("WEB")) {
+            namaKursus = "Web Programming";
+            level = "ADVANCED";
+            biayaDasar = 450000;
+
+        } else if (kode.startsWith("DS")) {
+            namaKursus = "Data Science";
+            level = "BASIC";
+            biayaDasar = 650000;
+
+        } else if (kode.startsWith("UIUX")) {
+            namaKursus = "UI/UX Design";
+            level = "BASIC";
+            biayaDasar = 400000;
+
+        } else {
+            System.out.println("ERROR: Kode kursus tidak dikenali.");
+            input.close();
+            return;
+        }
+
+        // Membuat objek berdasarkan constructor Kursus terbaru
+        Kursus kursus = new Kursus(
+                kode,
+                namaKursus,
+                level,
+                biayaDasar
+        );
+
+        int jumlah;
+
+        while (true) {
+            try {
+                System.out.print("Masukkan Jumlah Kursus: ");
+
+                jumlah = Integer.parseInt(input.nextLine().trim());
+
+                if (jumlah <= 0) {
+                    System.out.println(
+                            "ERROR: Jumlah kursus harus lebih dari 0."
+                    );
+                    continue;
+                }
+
+                break;
+
+            } catch (NumberFormatException e) {
+                System.out.println(
+                        "ERROR: Jumlah harus berupa angka bulat."
+                );
+            }
+        }
+
+        // Menghitung total biaya dasar
+        double totalDasar = kursus.getBiaya() * jumlah;
+
+        // Menghitung biaya fasilitas
+        double biayaFasilitas = hitungBiayaFasilitas(kode);
+
+        // Menghitung total biaya sebelum diskon
+        double totalKotor = totalDasar + biayaFasilitas;
+
+        // Menghitung diskon berdasarkan total kotor
+        double persenDiskon = hitungPersenDiskon(totalKotor);
+
+        // Menggunakan method diskon dari class Kursus
+        double totalSetelahDiskon =
+                kursus.hitungBiayaSetelahDiskon(persenDiskon * 100);
+
+        // Menambahkan biaya fasilitas ke total setelah diskon
+        double totalAkhir =
+                totalSetelahDiskon * jumlah + biayaFasilitas
+                - (biayaFasilitas * persenDiskon);
+
+        double potongan = totalKotor - totalAkhir;
+
+        String status = tentukanStatusHarga(totalAkhir);
+
+        // Menampilkan nota
+        System.out.println();
+        System.out.println("======================================");
+        System.out.println("              NOTA KURSUS");
+        System.out.println("======================================");
+
+        System.out.println("Kode Kursus      : " + kursus.getKode());
+        System.out.println("Nama Kursus      : " + kursus.getNama());
+        System.out.println("Level Kursus     : " + kursus.getLevel());
+        System.out.println("Jumlah Kursus    : " + jumlah);
+
+        System.out.printf(
+                "Biaya Satuan     : Rp%,.0f%n",
+                kursus.getBiaya()
+        );
+
+        System.out.printf(
+                "Total Biaya      : Rp%,.0f%n",
+                totalDasar
+        );
+
+        System.out.printf(
+                "Biaya Fasilitas  : Rp%,.0f%n",
+                biayaFasilitas
+        );
+
+        System.out.printf(
+                "Total Kotor      : Rp%,.0f%n",
+                totalKotor
+        );
+
+        System.out.printf(
+                "Diskon           : %.0f%%%n",
+                persenDiskon * 100
+        );
+
+        System.out.printf(
+                "Potongan         : Rp%,.0f%n",
+                potongan
+        );
+
+        System.out.println("--------------------------------------");
+
+        System.out.printf(
+                "TOTAL BAYAR      : Rp%,.0f%n",
+                totalAkhir
+        );
+
+        System.out.println("Status           : " + status);
+        System.out.println("======================================");
+
+        input.close();
+    }
+
+    public static double hitungBiayaFasilitas(String kode) {
+
+        if (kode.startsWith("JAVA")) {
+            return 50000;
+
+        } else if (kode.startsWith("WEB")) {
+            return 75000;
+
+        } else if (kode.startsWith("DS")) {
+            return 75000;
+
+        } else if (kode.startsWith("UIUX")) {
+            return 40000;
+
+        } else {
+            return 0;
+        }
+    }
+
+    public static double hitungPersenDiskon(double totalKotor) {
+
+        if (totalKotor < 0) {
+            throw new IllegalArgumentException(
+                    "Total biaya tidak boleh negatif"
+            );
+        }
+
+        if (totalKotor >= 3000000) {
+            return 0.15;
+
+        } else if (totalKotor >= 1500000) {
+            return 0.10;
+
+        } else {
+            return 0.05;
+        }
+    }
+
+    public static String tentukanStatusHarga(double totalAkhir) {
+
+        if (totalAkhir < 0) {
+            throw new IllegalArgumentException(
+                    "Total akhir tidak boleh negatif"
+            );
+        }
+
+        if (totalAkhir >= 2500000) {
+            return "PREMIUM/MAHAL";
+
+        } else if (totalAkhir >= 1500000) {
+            return "STANDAR";
+
+        } else {
+            return "EKONOMIS/TERJANGKAU";
+        }
     }
 }

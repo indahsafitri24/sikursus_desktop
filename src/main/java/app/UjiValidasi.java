@@ -11,121 +11,72 @@ public class UjiValidasi {
     }
 
     public static void main(String[] args) {
-
         int pass = 0;
         int total = 9;
 
-        // 1. Peserta valid
         pass += harusBerhasil("Peserta valid", new Aksi() {
             @Override
             public void jalankan() {
-                new Peserta(
-                        1,
-                        "ndaahh",
-                        "085261384670",
-                        "2924004",
-                        "Informatika"
-                );
+                new Peserta(1, "ndaahh", "085261384670",
+                        "2924004", "Informatika");
             }
         });
 
-        // 2. Instruktur valid
         pass += harusBerhasil("Instruktur valid", new Aksi() {
             @Override
             public void jalankan() {
-                new Instruktur(
-                        2,
-                        "syifa",
-                        "085362604055",
-                        "Java Desktop"
-                );
+                new Instruktur(2, "syifa", "085362604055",
+                        "Java Desktop");
             }
         });
 
-        // 3. ID negatif
         pass += harusDitolak("ID negatif", new Aksi() {
             @Override
             public void jalankan() {
-                new Peserta(
-                        -1,
-                        "ndaahh",
-                        "085261384670",
-                        "2924004",
-                        "Informatika"
-                );
+                new Peserta(-1, "ndaahh", "085261384670",
+                        "2924004", "Informatika");
             }
         });
 
-        // 4. Nama kosong
         pass += harusDitolak("Nama kosong", new Aksi() {
             @Override
             public void jalankan() {
-                new Peserta(
-                        1,
-                        "",
-                        "085261384670",
-                        "2924004",
-                        "Informatika"
-                );
+                new Peserta(1, "", "085261384670",
+                        "2924004", "Informatika");
             }
         });
 
-        // 5. Nomor HP berisi huruf
         pass += harusDitolak("No HP huruf", new Aksi() {
             @Override
             public void jalankan() {
-                new Peserta(
-                        1,
-                        "ndaahh",
-                        "telepon",
-                        "2924004",
-                        "Informatika"
-                );
+                new Peserta(1, "ndaahh", "telepon",
+                        "2924004", "Informatika");
             }
         });
 
-        // 6. NIM kosong
         pass += harusDitolak("NIM kosong", new Aksi() {
             @Override
             public void jalankan() {
-                new Peserta(
-                        1,
-                        "ndaahh",
-                        "085261384670",
-                        "",
-                        "Informatika"
-                );
+                new Peserta(1, "ndaahh", "085261384670",
+                        "", "Informatika");
             }
         });
 
-        // 7. Prodi kosong
         pass += harusDitolak("Prodi kosong", new Aksi() {
             @Override
             public void jalankan() {
-                new Peserta(
-                        1,
-                        "ndaahh",
-                        "085261384670",
-                        "2924004",
-                        ""
-                );
+                new Peserta(1, "ndaahh", "085261384670",
+                        "2924004", "");
             }
         });
 
-        // 8. Keahlian kosong
         pass += harusDitolak("Keahlian kosong", new Aksi() {
             @Override
             public void jalankan() {
-                new Instruktur(
-                        2,
-                        "syifa",
-                        "085362604055",
-                        ""
-                );
+                new Instruktur(2, "syifa", "085362604055", "");
             }
         });
 
-        // 9. Biaya negatif
         pass += harusDitolak("Biaya negatif", new Aksi() {
             @Override
             public void jalankan() {
@@ -134,11 +85,7 @@ public class UjiValidasi {
             }
         });
 
-        System.out.println();
-        System.out.println("================================");
-        System.out.println("HASIL: " + pass + "/" + total
-                + " TEST PASS");
-        System.out.println("================================");
+        System.out.println("\nHASIL: " + pass + "/" + total + " TEST PASS");
 
         if (pass != total) {
             throw new IllegalStateException(
@@ -147,51 +94,26 @@ public class UjiValidasi {
         }
     }
 
-    private static int harusBerhasil(
-            String nama,
-            Aksi aksi) {
-
+    private static int harusBerhasil(String nama, Aksi aksi) {
         try {
-
             aksi.jalankan();
-
             System.out.println("PASS | " + nama);
-
             return 1;
-
         } catch (RuntimeException ex) {
-
-            System.out.println(
-                    "FAIL | " + nama
-                    + " | " + ex.getMessage()
-            );
-
+            System.out.println("FAIL | " + nama + " | " + ex.getMessage());
             return 0;
         }
     }
 
-    private static int harusDitolak(
-            String nama,
-            Aksi aksi) {
-
+    private static int harusDitolak(String nama, Aksi aksi) {
         try {
-
             aksi.jalankan();
-
-            System.out.println(
-                    "FAIL | " + nama
-                    + " | Input tidak ditolak"
-            );
-
+            System.out.println("FAIL | " + nama
+                    + " | input invalid tidak ditolak");
             return 0;
-
         } catch (IllegalArgumentException ex) {
-
-            System.out.println(
-                    "PASS | " + nama
-                    + " | DITOLAK: " + ex.getMessage()
-            );
-
+            System.out.println("PASS | " + nama
+                    + " | DITOLAK: " + ex.getMessage());
             return 1;
         }
     }

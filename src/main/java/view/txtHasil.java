@@ -8,8 +8,11 @@ public class txtHasil {
 
     public txtHasil(JTextArea areaHasil) {
         if (areaHasil == null) {
-            throw new IllegalArgumentException("Area hasil tidak boleh kosong");
+            throw new IllegalArgumentException(
+                    "Area hasil tidak boleh kosong"
+            );
         }
+
         this.areaHasil = areaHasil;
     }
 
@@ -20,5 +23,11 @@ public class txtHasil {
 
     public void kosongkanHasil() {
         areaHasil.setText("");
+    }
+
+    public static void setText(String hasil) {
+        throw new UnsupportedOperationException(
+                "Gunakan object txtHasil untuk menampilkan hasil"
+        );
     }
 }

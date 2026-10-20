@@ -16,12 +16,11 @@ public class Orang {
         return id;
     }
 
-    public void setId(int id) {
+    public final void setId(int id) {
         if (id < 0) {
-            throw new IllegalArgumentException(
-                    "ID tidak boleh negatif"
-            );
+            throw new IllegalArgumentException("ID tidak boleh negatif");
         }
+
         this.id = id;
     }
 
@@ -29,12 +28,11 @@ public class Orang {
         return nama;
     }
 
-    public void setNama(String nama) {
+    public final void setNama(String nama) {
         if (nama == null || nama.trim().isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Nama wajib diisi"
-            );
+            throw new IllegalArgumentException("Nama wajib diisi");
         }
+
         this.nama = nama.trim();
     }
 
@@ -42,18 +40,21 @@ public class Orang {
         return noHp;
     }
 
-    public void setNoHp(String noHp) {
-        if (noHp == null || !noHp.matches("[0-9]+")) {
+    public final void setNoHp(String noHp) {
+        String nilai = noHp == null ? "" : noHp.trim();
+
+        if (!nilai.isEmpty() && !nilai.matches("[0-9+\\- ]{8,20}")) {
             throw new IllegalArgumentException(
-                    "Nomor HP hanya boleh berisi angka"
+                "Format nomor HP tidak valid"
             );
         }
-        this.noHp = noHp;
+
+        this.noHp = nilai;
     }
 
     public String getInfo() {
-        return "ID: " + id
-                + " | Nama: " + nama
-                + " | No. HP: " + noHp;
+        return getNama()
+                + " | HP: "
+                + (getNoHp().isEmpty() ? "-" : getNoHp());
     }
 }

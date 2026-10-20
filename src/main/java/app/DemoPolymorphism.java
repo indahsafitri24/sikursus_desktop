@@ -2,82 +2,70 @@ package app;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import model.Admin;
+import model.Instruktur;
 import model.Orang;
 import model.Peserta;
-import model.Instruktur;
-import model.Admin;
 
 public class DemoPolymorphism {
 
     public static void main(String[] args) {
 
-        ArrayList<Orang> daftarOrang = new ArrayList<>();
+        Peserta peserta1 = new Peserta(
+                1, "indah safitri", "085261384670",
+                "2924004", "informatika");
 
-        // 3 object Peserta
-        daftarOrang.add(new Peserta(
-                1,
-                "indah safitri",
-                "085261384670",
-                "2924004",
-                "informatika"
-        ));
+        Peserta peserta2 = new Peserta(
+                2, "nur syifa", "085362604055",
+                "2625063", "bimbingan dan konseling");
 
-        daftarOrang.add(new Peserta(
-                2,
-                "nur syifa",
-                "085362604055",
-                "2625063",
-                "bimbingan dan konseling"
-        ));
+        Peserta peserta3 = new Peserta(
+                3, "ahmad martondi", "082177902583",
+                "2924005", "informatika");
 
-        daftarOrang.add(new Peserta(
-                3,
-                "ahmad martondi",
-                "082177902583",
-                "2924005",
-                "informatika"
-        ));
+        Instruktur instruktur1 = new Instruktur(
+                101, "indah safitri", "085261384670",
+                "Java Desktop");
 
-        // 2 object Instruktur
-        daftarOrang.add(new Instruktur(
-                101,
-                "indah safitri",
-                "085261384670",
-                "Java Desktop"
-        ));
+        Instruktur instruktur2 = new Instruktur(
+                102, "nur syifa", "085362604055",
+                "Data Science");
 
-        daftarOrang.add(new Instruktur(
-                102,
-                "nur syifa",
-                "085362604055",
-                "Data Science"
-        ));
+        Admin admin = new Admin(
+                201, "indah safitri", "085261384670",
+                "Pengelola Sistem");
 
-        // 1 object Admin
-        daftarOrang.add(new Admin(
-                201,
-                "indah safitri",
-                "085261384670",
-                "Pengelola Sistem"
-        ));
+        List<Orang> daftarOrang = new ArrayList<Orang>();
+        daftarOrang.add(peserta1);
+        daftarOrang.add(peserta2);
+        daftarOrang.add(peserta3);
+        daftarOrang.add(instruktur1);
+        daftarOrang.add(instruktur2);
+        daftarOrang.add(admin);
 
-        // Menampilkan seluruh data dengan polymorphism
-        System.out.println("================================");
-        System.out.println("      DEMO POLYMORPHISM");
-        System.out.println("================================");
-
+        System.out.println("=== LOOP POLYMORPHISM ===");
         cetakSemua(daftarOrang);
 
-        // Mengecek jenis object
-        System.out.println();
-        System.out.println("=== CEK JENIS OBJECT ===");
+        System.out.println("\n=== POLYMORPHIC ARGUMENT ===");
+
+        tampilkanInfo(peserta1);
+        tampilkanInfo(peserta2);
+        tampilkanInfo(peserta3);
+        tampilkanInfo(instruktur1);
+        tampilkanInfo(instruktur2);
+        tampilkanInfo(admin);
+
+        System.out.println("\n=== CEK JENIS OBJECT ===");
 
         for (Orang orang : daftarOrang) {
-
             if (orang instanceof Peserta) {
+                Peserta p = (Peserta) orang;
+
                 System.out.println(
                         orang.getNama() + " adalah Peserta"
+                );
+                System.out.println(
+                        "NIM khusus peserta: " + p.getNim()
                 );
 
             } else if (orang instanceof Instruktur) {
@@ -92,27 +80,16 @@ public class DemoPolymorphism {
             }
         }
 
-        // Polymorphism melalui parameter method
-        System.out.println();
-        System.out.println("=== DEMO METHOD PARAMETER ===");
-
-        for (Orang orang : daftarOrang) {
-            tampilkanOrang(orang);
-        }
+        System.out.println("\nJumlah object: " + daftarOrang.size());
     }
 
-    // Method untuk mencetak seluruh data Orang
+    public static void tampilkanInfo(Orang orang) {
+        System.out.println(orang.getInfo());
+    }
+
     public static void cetakSemua(List<Orang> daftar) {
         for (Orang orang : daftar) {
             System.out.println(orang.getInfo());
-            System.out.println("--------------------------------");
         }
-    }
-
-    // Method menerima object dari class Orang
-    public static void tampilkanOrang(Orang orang) {
-        System.out.println("Data SIKURSUS:");
-        System.out.println(orang.getInfo());
-        System.out.println();
     }
 }

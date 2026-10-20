@@ -21,63 +21,96 @@ public class UjiPraktikum7 {
                 FormPendaftaranKursus form =
                         new FormPendaftaranKursus();
 
-                System.out.println("==================================");
-                System.out.println("     UJI PRAKTIKUM 7 SIKURSUS");
-                System.out.println("==================================");
-
-                int pass = 0;
-                int total = 3;
-
                 try {
+                    Method biayaDasar =
+                            method("hitungBiayaDasar", String.class);
 
-                    // SKENARIO 1
-                    setField(form, "rbMahasiswa", true);
-                    setField(form, "rbUmum", false);
-                    setField(form, "cmbKursus", "Java Desktop");
-                    setField(form, "cbModul", true);
-                    setField(form, "cbSertifikat", true);
-                    setField(form, "cbRekaman", false);
+                    Method biayaFasilitas =
+                            method("hitungBiayaFasilitas");
+
+                    Method jenisPeserta =
+                            method("getJenisPeserta");
+
+                    Method ringkasanFasilitas =
+                            method("buatRingkasanFasilitas");
+
+                    JRadioButton rbMahasiswa =
+                            field(form, "rbMahasiswa", JRadioButton.class);
+
+                    JRadioButton rbUmum =
+                            field(form, "rbUmum", JRadioButton.class);
+
+                    JComboBox<?> cmbKursus =
+                            field(form, "cmbKursus", JComboBox.class);
+
+                    JCheckBox cbModul =
+                            field(form, "cbModul", JCheckBox.class);
+
+                    JCheckBox cbSertifikat =
+                            field(form, "cbSertifikat", JCheckBox.class);
+
+                    JCheckBox cbRekaman =
+                            field(form, "cbRekaman", JCheckBox.class);
+
+                    int pass = 0;
+                    int total = 3;
+
+                    System.out.println("==================================");
+                    System.out.println("     UJI PRAKTIKUM 7 SIKURSUS");
+                    System.out.println("==================================");
+
+                    // Skenario 1: Mahasiswa + Java Desktop
+                    // Modul + Sertifikat = Rp575.000
+                    rbMahasiswa.setSelected(true);
+                    rbUmum.setSelected(false);
+                    cmbKursus.setSelectedItem("Java Desktop");
+                    cbModul.setSelected(true);
+                    cbSertifikat.setSelected(true);
+                    cbRekaman.setSelected(false);
 
                     pass += cekSkenario(
                             form,
-                            "Mahasiswa - Java Desktop",
+                            biayaDasar,
+                            biayaFasilitas,
+                            jenisPeserta,
+                            ringkasanFasilitas,
+                            "Skenario 1 - Mahasiswa - Java Desktop",
                             575000
                     );
 
-                    // SKENARIO 2
-                    setField(form, "rbMahasiswa", false);
-                    setField(form, "rbUmum", true);
-                    setField(form, "cmbKursus", "Data Science");
-                    setField(form, "cbModul", false);
-                    setField(form, "cbSertifikat", false);
-                    setField(form, "cbRekaman", true);
+                    // Skenario 2: Umum + Data Science
+                    // Rekaman = Rp690.000
+                    rbMahasiswa.setSelected(false);
+                    rbUmum.setSelected(true);
+                    cmbKursus.setSelectedItem("Data Science");
+                    cbModul.setSelected(false);
+                    cbSertifikat.setSelected(false);
+                    cbRekaman.setSelected(true);
 
                     pass += cekSkenario(
                             form,
-                            "Umum - Data Science",
+                            biayaDasar,
+                            biayaFasilitas,
+                            jenisPeserta,
+                            ringkasanFasilitas,
+                            "Skenario 2 - Umum - Data Science",
                             690000
                     );
 
-                    // SKENARIO 3
-                    setField(form, "rbMahasiswa", false);
-                    setField(form, "rbUmum", true);
-                    setField(form, "cmbKursus", "UI/UX Design");
-                    setField(form, "cbModul", false);
-                    setField(form, "cbSertifikat", false);
-                    setField(form, "cbRekaman", false);
+                    cmbKursus.setSelectedItem("UI/UX Design");
+                    cbModul.setSelected(false);
+                    cbSertifikat.setSelected(false);
+                    cbRekaman.setSelected(false);
 
                     pass += cekSkenario(
                             form,
-                            "Umum - UI/UX Design",
+                            biayaDasar,
+                            biayaFasilitas,
+                            jenisPeserta,
+                            ringkasanFasilitas,
+                            "Skenario 3 - Umum - UI/UX Design",
                             400000
                     );
-
-                } catch (Exception ex) {
-
-                    System.out.println("ERROR: " + ex.toString());
-                    ex.printStackTrace();
-
-                } finally {
 
                     System.out.println("----------------------------------");
                     System.out.println(
@@ -87,6 +120,12 @@ public class UjiPraktikum7 {
                     System.out.println("==================================");
 
                     hasil[0] = pass;
+
+                } catch (Exception ex) {
+                    System.out.println("ERROR: " + ex.toString());
+                    ex.printStackTrace();
+
+                } finally {
                     form.dispose();
                 }
             }
@@ -101,55 +140,48 @@ public class UjiPraktikum7 {
 
     private static int cekSkenario(
             FormPendaftaranKursus form,
-            String nama,
+            Method biayaDasar,
+            Method biayaFasilitas,
+            Method jenisPeserta,
+            Method ringkasanFasilitas,
+            String namaSkenario,
             double biayaHarapan) {
 
         try {
+            JComboBox<?> cmbKursus =
+                    field(form, "cmbKursus", JComboBox.class);
 
-            String kursus = getKursus(form);
+            String kursus =
+                    cmbKursus.getSelectedItem().toString();
 
-            double dasar = ((Number) panggilMethod(
-                    form,
-                    "hitungBiayaDasar",
-                    new Class[]{String.class},
-                    new Object[]{kursus}
-            )).doubleValue();
+            String jenis =
+                    (String) jenisPeserta.invoke(form);
 
-            double fasilitas = ((Number) panggilMethod(
-                    form,
-                    "hitungBiayaFasilitas",
-                    new Class[]{},
-                    new Object[]{}
-            )).doubleValue();
+            double dasar =
+                    ((Number) biayaDasar.invoke(form, kursus))
+                    .doubleValue();
 
-            String jenis = (String) panggilMethod(
-                    form,
-                    "getJenisPeserta",
-                    new Class[]{},
-                    new Object[]{}
-            );
+            double fasilitas =
+                    ((Number) biayaFasilitas.invoke(form))
+                    .doubleValue();
 
-            String ringkasan = (String) panggilMethod(
-                    form,
-                    "buatRingkasanFasilitas",
-                    new Class[]{},
-                    new Object[]{}
-            );
-
-            double diskon = 0;
-
-            if ("Mahasiswa".equals(jenis)) {
-                diskon = dasar * 0.10;
-            }
+            double diskon = "Mahasiswa".equals(jenis)
+                    ? dasar * 0.10
+                    : 0;
 
             double total = dasar - diskon + fasilitas;
 
             boolean hasilBenar =
-                    Math.abs(total - biayaHarapan) < 0.01;
+                    Math.abs(total - biayaHarapan) < 0.001;
 
-            if (!getCheckbox(form, "cbModul")
-                    && !getCheckbox(form, "cbSertifikat")
-                    && !getCheckbox(form, "cbRekaman")) {
+            boolean tanpaFasilitas =
+                    !field(form, "cbModul", JCheckBox.class).isSelected()
+                    && !field(form, "cbSertifikat", JCheckBox.class).isSelected()
+                    && !field(form, "cbRekaman", JCheckBox.class).isSelected();
+
+            if (tanpaFasilitas) {
+                String ringkasan =
+                        (String) ringkasanFasilitas.invoke(form);
 
                 hasilBenar = hasilBenar
                         && ringkasan.contains(
@@ -158,112 +190,49 @@ public class UjiPraktikum7 {
             }
 
             if (hasilBenar) {
-
                 System.out.println(
-                        "PASS | " + nama
-                        + " | Total: Rp " + total
+                        "PASS | " + namaSkenario
+                        + " | Total: Rp " + (long) total
                 );
-
                 return 1;
 
             } else {
-
                 System.out.println(
-                        "FAIL | " + nama
-                        + " | Total: Rp " + total
-                        + " | Harapan: Rp " + biayaHarapan
+                        "FAIL | " + namaSkenario
+                        + " | Total: Rp " + (long) total
+                        + " | Harapan: Rp " + (long) biayaHarapan
                 );
-
                 return 0;
             }
 
         } catch (Exception ex) {
-
             System.out.println(
-                    "FAIL | " + nama
+                    "FAIL | " + namaSkenario
                     + " | " + ex.toString()
             );
-
             ex.printStackTrace();
-
             return 0;
         }
     }
 
-    private static String getKursus(
-            FormPendaftaranKursus form) throws Exception {
-
-        JComboBox cmb = (JComboBox) getField(
-                form, "cmbKursus"
-        );
-
-        Object pilihan = cmb.getSelectedItem();
-
-        if (pilihan == null) {
-            throw new IllegalStateException(
-                    "Kursus belum dipilih"
-            );
-        }
-
-        return pilihan.toString();
-    }
-
-    private static boolean getCheckbox(
-            FormPendaftaranKursus form,
-            String nama) throws Exception {
-
-        JCheckBox cb = (JCheckBox) getField(form, nama);
-
-        return cb.isSelected();
-    }
-
-    private static void setField(
-            FormPendaftaranKursus form,
+    private static Method method(
             String nama,
-            Object nilai) throws Exception {
+            Class<?>... parameter) throws Exception {
 
-        Object komponen = getField(form, nama);
-
-        if (komponen instanceof JRadioButton) {
-
-            ((JRadioButton) komponen)
-                    .setSelected((Boolean) nilai);
-
-        } else if (komponen instanceof JCheckBox) {
-
-            ((JCheckBox) komponen)
-                    .setSelected((Boolean) nilai);
-
-        } else if (komponen instanceof JComboBox) {
-
-            ((JComboBox) komponen)
-                    .setSelectedItem(nilai);
-        }
-    }
-
-    private static Object getField(
-            FormPendaftaranKursus form,
-            String nama) throws Exception {
-
-        Field field = FormPendaftaranKursus.class
-                .getDeclaredField(nama);
-
-        field.setAccessible(true);
-
-        return field.get(form);
-    }
-
-    private static Object panggilMethod(
-            FormPendaftaranKursus form,
-            String nama,
-            Class[] parameter,
-            Object[] nilai) throws Exception {
-
-        Method method = FormPendaftaranKursus.class
+        Method m = FormPendaftaranKursus.class
                 .getDeclaredMethod(nama, parameter);
 
-        method.setAccessible(true);
+        m.setAccessible(true);
+        return m;
+    }
 
-        return method.invoke(form, nilai);
+    private static <T> T field(
+            Object object,
+            String nama,
+            Class<T> tipe) throws Exception {
+
+        Field f = object.getClass().getDeclaredField(nama);
+        f.setAccessible(true);
+        return tipe.cast(f.get(object));
     }
 }
