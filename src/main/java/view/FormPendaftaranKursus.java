@@ -644,7 +644,7 @@ public class FormPendaftaranKursus extends javax.swing.JFrame {
     }//GEN-LAST:event_cbSertifikatActionPerformed
 
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
-    prosesPendaftaran();
+        prosesPendaftaran();
     }//GEN-LAST:event_btnSimpanActionPerformed
 
     private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed

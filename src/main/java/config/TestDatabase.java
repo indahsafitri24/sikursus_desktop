@@ -10,12 +10,15 @@ public class TestDatabase {
         try (Connection conn = Database.getConnection()) {
 
             if (conn != null && conn.isValid(2)) {
+
                 System.out.println(
-                    "KONEKSI BERHASIL ke db_sikursus"
+                    "koneksi berhasil!!"
                 );
+
             } else {
+
                 System.out.println(
-                    "Koneksi terbentuk tetapi tidak valid."
+                    "koneksi terbentuk tetapi tidak valid."
                 );
             }
 
