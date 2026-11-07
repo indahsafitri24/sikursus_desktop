@@ -1,31 +1,15 @@
 package config;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public class TestDatabase {
-
     public static void main(String[] args) {
-
         try (Connection conn = Database.getConnection()) {
-
-            if (conn != null && conn.isValid(2)) {
-
-                System.out.println(
-                    "koneksi berhasil!!"
-                );
-
-            } else {
-
-                System.out.println(
-                    "koneksi terbentuk tetapi tidak valid."
-                );
-            }
-
-        } catch (SQLException e) {
-
-            System.out.println("KONEKSI GAGAL");
-            System.out.println(e.getMessage());
+            System.out.println(conn != null && conn.isValid(2)
+                    ? "KONEKSI BERHASIL!!"
+                    : "Koneksi terbentuk tetapi tidak valid");
+        } catch (Exception ex) {
+            System.out.println("KONEKSI GAGAL: " + ex.getMessage());
         }
     }
 }

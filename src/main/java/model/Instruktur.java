@@ -3,12 +3,34 @@ package model;
 public class Instruktur extends Orang {
 
     private String keahlian;
+    private String email;
 
-    public Instruktur(int id, String nama, String noHp,
-                      String keahlian) {
+    // Constructor kosong untuk kebutuhan Form dan DAO
+    public Instruktur() {
+        super(0, "-", "");
+        this.keahlian = "-";
+        this.email = "";
+    }
+
+    // Constructor lama
+    public Instruktur(int id, String nama,
+                     String noHp, String keahlian) {
 
         super(id, nama, noHp);
+
         setKeahlian(keahlian);
+        setEmail("");
+    }
+
+    // Constructor untuk database
+    public Instruktur(int id, String nama,
+                      String noHp, String keahlian,
+                      String email) {
+
+        super(id, nama, noHp);
+
+        setKeahlian(keahlian);
+        setEmail(email);
     }
 
     public String getKeahlian() {
@@ -16,12 +38,23 @@ public class Instruktur extends Orang {
     }
 
     public void setKeahlian(String keahlian) {
-        if (keahlian == null || keahlian.trim().isEmpty()) {
+        if (keahlian == null
+                || keahlian.trim().isEmpty()) {
+
             throw new IllegalArgumentException(
-                    "Keahlian wajib diisi"
+                "Keahlian wajib diisi"
             );
         }
+
         this.keahlian = keahlian.trim();
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email == null ? "" : email.trim();
     }
 
     @Override

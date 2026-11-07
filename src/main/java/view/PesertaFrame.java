@@ -1,4 +1,3 @@
-
 package view;
 
 import dao.PesertaDAO;
@@ -99,7 +98,7 @@ public class PesertaFrame extends JFrame {
 
         setTitle("Master Data Peserta - SIKURSUS Desktop");
 
-        setSize(1150, 850);
+        setSize(1150, 740);
         setMinimumSize(new Dimension(950, 700));
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -271,7 +270,7 @@ public class PesertaFrame extends JFrame {
 
         cmbJenisKelamin = new JComboBox<>(
                 new String[]{
-                    "Pilih Jenis Kelamin",
+                    "- Silakan Pilih Jenis Kelamin -",
                     "Laki-laki",
                     "Perempuan"
                 }
@@ -291,6 +290,25 @@ public class PesertaFrame extends JFrame {
         cmbJenisKelamin.setBorder(
                 BorderFactory.createLineBorder(BORDER)
         );
+
+        cmbJenisKelamin.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                    javax.swing.JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus
+            ) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus
+                );
+
+                label.setBorder(new EmptyBorder(0, 8, 0, 0));
+
+                return label;
+            }
+        });
 
         // Panel input
         JPanel inputPanel = new JPanel(
@@ -562,6 +580,11 @@ public class PesertaFrame extends JFrame {
 
         dataTitle.setFont(getFont(Font.BOLD, 16));
         dataTitle.setForeground(BROWN_DARK);
+        dataTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        dataTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        dataTitle.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, dataTitle.getPreferredSize().height)
+        );
 
         JPanel searchPanel = new JPanel(
                 new FlowLayout(FlowLayout.LEFT, 8, 5)
@@ -590,17 +613,14 @@ public class PesertaFrame extends JFrame {
         searchPanel.add(txtCari);
         searchPanel.add(btnCari);
 
-        JPanel topContent = new JPanel();
-
-        topContent.setLayout(
-                new BoxLayout(topContent, BoxLayout.Y_AXIS)
+        JPanel topContent = new JPanel(
+                new BorderLayout(0, 8)
         );
 
         topContent.setBackground(WHITE);
 
-        topContent.add(dataTitle);
-        topContent.add(Box.createVerticalStrut(8));
-        topContent.add(searchPanel);
+        topContent.add(dataTitle, BorderLayout.WEST);
+        topContent.add(searchPanel, BorderLayout.SOUTH);
 
         topPanel.add(topContent, BorderLayout.CENTER);
 

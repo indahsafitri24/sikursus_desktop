@@ -18,9 +18,10 @@ public class Orang {
 
     public final void setId(int id) {
         if (id < 0) {
-            throw new IllegalArgumentException("ID tidak boleh negatif");
+            throw new IllegalArgumentException(
+                "ID tidak boleh negatif"
+            );
         }
-
         this.id = id;
     }
 
@@ -30,9 +31,10 @@ public class Orang {
 
     public final void setNama(String nama) {
         if (nama == null || nama.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nama wajib diisi");
+            throw new IllegalArgumentException(
+                "Nama wajib diisi"
+            );
         }
-
         this.nama = nama.trim();
     }
 
@@ -43,7 +45,8 @@ public class Orang {
     public final void setNoHp(String noHp) {
         String nilai = noHp == null ? "" : noHp.trim();
 
-        if (!nilai.isEmpty() && !nilai.matches("[0-9+\\- ]{8,20}")) {
+        if (!nilai.isEmpty()
+                && !nilai.matches("[0-9+\\- ]{8,20}")) {
             throw new IllegalArgumentException(
                 "Format nomor HP tidak valid"
             );

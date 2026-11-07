@@ -1,49 +1,22 @@
 package dao;
 
 import config.Database;
+import java.sql.*;
+import java.util.*;
 import model.Peserta;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import java.util.ArrayList;
-import java.util.List;
+import util.LookupItem;
 
 public class PesertaDAO {
 
-    // CREATE
-    public boolean insert(Peserta p) throws SQLException {
-
-        String sql = "INSERT INTO peserta "
-                + "(nim, nama, jenis_kelamin, prodi, no_hp, email) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, p.getNim());
-            ps.setString(2, p.getNama());
-            ps.setString(3, p.getJenisKelamin());
-            ps.setString(4, p.getProdi());
-            ps.setString(5, p.getNoHp());
-            ps.setString(6, p.getEmail());
-
-            return ps.executeUpdate() == 1;
-        }
-    }
-
-    // MENGUBAH RESULTSET MENJADI OBJEK PESERTA
-    private Peserta mapRow(ResultSet rs) throws SQLException {
+    private Peserta map(ResultSet rs) throws SQLException {
 
         Peserta p = new Peserta(
-                rs.getString("nim"),
-                rs.getString("nama"),
-                rs.getString("jenis_kelamin"),
-                rs.getString("prodi"),
-                rs.getString("no_hp"),
-                rs.getString("email")
+            rs.getString("nim"),
+            rs.getString("nama"),
+            rs.getString("jenis_kelamin"),
+            rs.getString("prodi"),
+            rs.getString("no_hp"),
+            rs.getString("email")
         );
 
         p.setId(rs.getInt("id_peserta"));
@@ -51,58 +24,55 @@ public class PesertaDAO {
         return p;
     }
 
-    // READ
-    public List<Peserta> findAll() throws SQLException {
+    public boolean insert(Peserta p) throws SQLException {
 
-        List<Peserta> data = new ArrayList<>();
+        String sql = "INSERT INTO peserta "
+                + "(nim,nama,jenis_kelamin,prodi,no_hp,email) "
+                + "VALUES (?,?,?,?,?,?)";
 
-        String sql = "SELECT id_peserta, nim, nama, "
-                + "jenis_kelamin, prodi, no_hp, email "
-                + "FROM peserta ORDER BY id_peserta DESC";
+        try (Connection c = Database.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+            bind(ps, p);
 
-            while (rs.next()) {
-                data.add(mapRow(rs));
-            }
+            return ps.executeUpdate() == 1;
         }
-
-        return data;
     }
 
-    // UPDATE
     public boolean update(Peserta p) throws SQLException {
 
         String sql = "UPDATE peserta SET "
-                + "nim=?, nama=?, jenis_kelamin=?, "
-                + "prodi=?, no_hp=?, email=? "
+                + "nim=?,nama=?,jenis_kelamin=?,"
+                + "prodi=?,no_hp=?,email=? "
                 + "WHERE id_peserta=?";
 
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection c = Database.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setString(1, p.getNim());
-            ps.setString(2, p.getNama());
-            ps.setString(3, p.getJenisKelamin());
-            ps.setString(4, p.getProdi());
-            ps.setString(5, p.getNoHp());
-            ps.setString(6, p.getEmail());
+            bind(ps, p);
             ps.setInt(7, p.getId());
 
             return ps.executeUpdate() > 0;
         }
     }
 
-    // DELETE
+    private void bind(PreparedStatement ps, Peserta p)
+            throws SQLException {
+
+        ps.setString(1, p.getNim());
+        ps.setString(2, p.getNama());
+        ps.setString(3, p.getJenisKelamin());
+        ps.setString(4, p.getProdi());
+        ps.setString(5, p.getNoHp());
+        ps.setString(6, p.getEmail());
+    }
+
     public boolean delete(int id) throws SQLException {
 
-        String sql = "DELETE FROM peserta "
-                + "WHERE id_peserta=?";
+        String sql = "DELETE FROM peserta WHERE id_peserta=?";
 
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection c = Database.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setInt(1, id);
 
@@ -110,36 +80,61 @@ public class PesertaDAO {
         }
     }
 
-    // SEARCH
-    public List<Peserta> search(String keyword)
-            throws SQLException {
+    public List<Peserta> findAll() throws SQLException {
+        return search("");
+    }
 
-        List<Peserta> data = new ArrayList<>();
+    public List<Peserta> search(String q) throws SQLException {
 
-        String sql = "SELECT id_peserta, nim, nama, "
-                + "jenis_kelamin, prodi, no_hp, email "
+        List<Peserta> out = new ArrayList<>();
+
+        String sql = "SELECT id_peserta,nim,nama,"
+                + "jenis_kelamin,prodi,no_hp,email "
                 + "FROM peserta "
                 + "WHERE nim LIKE ? OR nama LIKE ? "
-                + "ORDER BY nama ASC";
+                + "OR prodi LIKE ? "
+                + "ORDER BY id_peserta DESC";
 
-        String pattern = "%"
-                + (keyword == null ? "" : keyword.trim())
-                + "%";
+        try (Connection c = Database.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            String x = "%" + (q == null ? "" : q.trim()) + "%";
 
-            ps.setString(1, pattern);
-            ps.setString(2, pattern);
+            ps.setString(1, x);
+            ps.setString(2, x);
+            ps.setString(3, x);
 
             try (ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
-                    data.add(mapRow(rs));
+                    out.add(map(rs));
                 }
             }
         }
 
-        return data;
+        return out;
+    }
+
+    public List<LookupItem> lookup() throws SQLException {
+
+        List<LookupItem> out = new ArrayList<>();
+
+        String sql = "SELECT id_peserta,nim,nama "
+                + "FROM peserta ORDER BY nama";
+
+        try (Connection c = Database.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                out.add(new LookupItem(
+                    rs.getInt(1),
+                    rs.getString(2) + " - " + rs.getString(3)
+                ));
+            }
+        }
+
+        return out;
     }
 }
