@@ -1,48 +1,29 @@
-
 package view;
 
 import dao.UserDAO;
 import model.User;
 import util.UserSession;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.RenderingHints;
+import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.InputStream;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-import javax.swing.border.EmptyBorder;
 
 public class UserFrame extends JFrame {
 
@@ -65,9 +46,12 @@ public class UserFrame extends JFrame {
     private JButton btnReset;
     private JButton btnCari;
 
+    private JLabel lblJumlah;
+
     private JPanel mainContent;
 
-    // Warna desain
+    // ================= WARNA =================
+
     private final Color BG = new Color(250, 246, 238);
     private final Color WHITE = new Color(255, 252, 246);
 
@@ -79,30 +63,99 @@ public class UserFrame extends JFrame {
 
     private final Color TEXT = new Color(75, 61, 51);
     private final Color MUTED = new Color(130, 112, 96);
+    private final Color PLACEHOLDER = new Color(184, 165, 145);
 
     private final Color BORDER = new Color(226, 213, 194);
+    private final Color FIELD_BG = new Color(251, 248, 242);
     private final Color TABLE_HEADER = new Color(238, 225, 205);
+    private final Color ZEBRA = new Color(252, 248, 241);
+    private final Color ROW_SELECT = new Color(235, 221, 201);
 
+    // Warna tombol
     private final Color BTN_BLUE = new Color(145, 105, 76);
     private final Color BTN_RED = new Color(165, 91, 76);
     private final Color BTN_GRAY = new Color(137, 119, 102);
     private final Color BTN_GREEN = new Color(112, 132, 99);
 
+    // Warna tombol ketika nonaktif
     private final Color DISABLED_BROWN = new Color(205, 181, 157);
     private final Color DISABLED_RED = new Color(211, 171, 160);
 
-    private final String FONT_NAME = "Segoe UI";
+    private final int FONT_NORMAL = 12;
+    private final int FONT_SMALL = 11;
+    private final int FONT_TITLE = 20;
 
-    private final int FONT_NORMAL = 13;
-    private final int FONT_SMALL = 12;
-    private final int FONT_TITLE = 22;
+    // ================= FONT POPPINS =================
+
+    private static Font poppinsRegular;
+    private static Font poppinsBold;
+
+    static {
+        loadFonts();
+    }
+
+    private static void loadFonts() {
+
+        try {
+
+            URL regularURL = UserFrame.class.getResource(
+                    "/fonts/Poppins-Regular.ttf"
+            );
+
+            URL boldURL = UserFrame.class.getResource(
+                    "/fonts/Poppins-Bold.ttf"
+            );
+
+            GraphicsEnvironment ge =
+                    GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+            if (regularURL != null) {
+                try (InputStream in = regularURL.openStream()) {
+                    poppinsRegular = Font.createFont(
+                            Font.TRUETYPE_FONT, in
+                    );
+                    ge.registerFont(poppinsRegular);
+                }
+            }
+
+            if (boldURL != null) {
+                try (InputStream in = boldURL.openStream()) {
+                    poppinsBold = Font.createFont(
+                            Font.TRUETYPE_FONT, in
+                    );
+                    ge.registerFont(poppinsBold);
+                }
+            }
+
+        } catch (Exception ex) {
+
+            System.out.println(
+                    "Font Poppins gagal dimuat: " + ex.getMessage()
+            );
+        }
+    }
+
+    private Font appFont(int style, int size) {
+
+        if (style == Font.BOLD && poppinsBold != null) {
+            return poppinsBold.deriveFont((float) size);
+        }
+
+        if (style != Font.BOLD && poppinsRegular != null) {
+            return poppinsRegular.deriveFont((float) size);
+        }
+
+        return new Font("Segoe UI", style, size);
+    }
+
+    // ================= CONSTRUCTOR =================
 
     public UserFrame() {
 
         setTitle("Master Users - SIKURSUS Desktop");
 
-        setSize(1150, 740);
-        setMinimumSize(new Dimension(950, 700));
+        setSize(1180, 780);
+        setMinimumSize(new Dimension(1000, 720));
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -132,26 +185,23 @@ public class UserFrame extends JFrame {
         clear();
     }
 
-    // Font
+    // ================= FONT GLOBAL =================
+
     private void setGlobalFont() {
 
-        Font defaultFont = getFont(Font.PLAIN, FONT_NORMAL);
+        Font defaultFont = appFont(Font.PLAIN, FONT_NORMAL);
 
-        javax.swing.UIManager.put("defaultFont", defaultFont);
-        javax.swing.UIManager.put("Label.font", defaultFont);
-        javax.swing.UIManager.put("Button.font", defaultFont);
-        javax.swing.UIManager.put("TextField.font", defaultFont);
-        javax.swing.UIManager.put("PasswordField.font", defaultFont);
-        javax.swing.UIManager.put("ComboBox.font", defaultFont);
-        javax.swing.UIManager.put("CheckBox.font", defaultFont);
-        javax.swing.UIManager.put("Table.font", defaultFont);
-        javax.swing.UIManager.put("TableHeader.font", defaultFont);
-        javax.swing.UIManager.put("OptionPane.messageFont", defaultFont);
-        javax.swing.UIManager.put("OptionPane.buttonFont", defaultFont);
-    }
-
-    private Font getFont(int style, int size) {
-        return new Font(FONT_NAME, style, size);
+        UIManager.put("defaultFont", defaultFont);
+        UIManager.put("Label.font", defaultFont);
+        UIManager.put("Button.font", defaultFont);
+        UIManager.put("TextField.font", defaultFont);
+        UIManager.put("PasswordField.font", defaultFont);
+        UIManager.put("ComboBox.font", defaultFont);
+        UIManager.put("CheckBox.font", defaultFont);
+        UIManager.put("Table.font", defaultFont);
+        UIManager.put("TableHeader.font", defaultFont);
+        UIManager.put("OptionPane.messageFont", defaultFont);
+        UIManager.put("OptionPane.buttonFont", defaultFont);
     }
 
     private void applyFont(Component component) {
@@ -166,7 +216,7 @@ public class UserFrame extends JFrame {
             size = currentFont.getSize();
         }
 
-        component.setFont(getFont(style, size));
+        component.setFont(appFont(style, size));
 
         if (component instanceof Container) {
 
@@ -181,123 +231,624 @@ public class UserFrame extends JFrame {
 
             JTable tbl = (JTable) component;
 
-            tbl.setFont(getFont(Font.PLAIN, FONT_SMALL));
-            tbl.setRowHeight(32);
+            tbl.setFont(appFont(Font.PLAIN, FONT_SMALL));
+            tbl.setRowHeight(36);
 
             JTableHeader header = tbl.getTableHeader();
 
             if (header != null) {
-                header.setFont(getFont(Font.BOLD, FONT_SMALL));
+                header.setFont(appFont(Font.BOLD, FONT_SMALL));
             }
         }
     }
 
-    // Header
+    // ================= PANEL BERSUDUT MEMBULAT =================
+
+    private class RoundedPanel extends JPanel {
+
+        RoundedPanel(LayoutManager layout) {
+            super(layout);
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            g2.setColor(WHITE);
+            g2.fillRoundRect(
+                    0, 0, getWidth() - 1, getHeight() - 1, 18, 18
+            );
+
+            g2.setColor(BORDER);
+            g2.drawRoundRect(
+                    0, 0, getWidth() - 1, getHeight() - 1, 18, 18
+            );
+
+            g2.dispose();
+
+            super.paintComponent(g);
+        }
+    }
+
+    // ================= INPUT TEKS =================
+
+    private class InputField extends JTextField {
+
+        private final String hint;
+
+        InputField(String hint) {
+
+            this.hint = hint;
+
+            setOpaque(false);
+            setForeground(TEXT);
+            setCaretColor(BROWN);
+
+            setBorder(new EmptyBorder(6, 13, 6, 13));
+
+            setPreferredSize(new Dimension(200, 38));
+
+            addFocusListener(new FocusAdapter() {
+
+                @Override
+                public void focusGained(FocusEvent e) {
+                    repaint();
+                }
+
+                @Override
+                public void focusLost(FocusEvent e) {
+                    repaint();
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            g2.setColor(FIELD_BG);
+            g2.fillRoundRect(
+                    0, 0, getWidth(), getHeight(), 12, 12
+            );
+
+            g2.dispose();
+
+            super.paintComponent(g);
+
+            Graphics2D g3 = (Graphics2D) g.create();
+
+            g3.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            g3.setRenderingHint(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+            );
+
+            if (isFocusOwner()) {
+
+                g3.setColor(BROWN_LIGHT);
+                g3.setStroke(new BasicStroke(2f));
+                g3.drawRoundRect(
+                        1, 1, getWidth() - 3, getHeight() - 3, 12, 12
+                );
+
+            } else {
+
+                g3.setColor(BORDER);
+                g3.setStroke(new BasicStroke(1f));
+                g3.drawRoundRect(
+                        0, 0, getWidth() - 1, getHeight() - 1, 12, 12
+                );
+            }
+
+            if (getText().isEmpty() && hint != null) {
+
+                g3.setFont(appFont(Font.PLAIN, FONT_SMALL));
+                g3.setColor(PLACEHOLDER);
+
+                FontMetrics fm = g3.getFontMetrics();
+
+                int x = getInsets().left;
+                int y = (getHeight() - fm.getHeight()) / 2
+                        + fm.getAscent();
+
+                g3.drawString(hint, x, y);
+            }
+
+            g3.dispose();
+        }
+    }
+
+    // ================= INPUT PASSWORD =================
+
+    private class InputPassword extends JPasswordField {
+
+        private final String hint;
+
+        InputPassword(String hint) {
+
+            this.hint = hint;
+
+            setOpaque(false);
+            setForeground(TEXT);
+            setCaretColor(BROWN);
+
+            setBorder(new EmptyBorder(6, 13, 6, 13));
+
+            setPreferredSize(new Dimension(200, 38));
+
+            addFocusListener(new FocusAdapter() {
+
+                @Override
+                public void focusGained(FocusEvent e) {
+                    repaint();
+                }
+
+                @Override
+                public void focusLost(FocusEvent e) {
+                    repaint();
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            g2.setColor(FIELD_BG);
+            g2.fillRoundRect(
+                    0, 0, getWidth(), getHeight(), 12, 12
+            );
+
+            g2.dispose();
+
+            super.paintComponent(g);
+
+            Graphics2D g3 = (Graphics2D) g.create();
+
+            g3.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            g3.setRenderingHint(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+            );
+
+            if (isFocusOwner()) {
+
+                g3.setColor(BROWN_LIGHT);
+                g3.setStroke(new BasicStroke(2f));
+                g3.drawRoundRect(
+                        1, 1, getWidth() - 3, getHeight() - 3, 12, 12
+                );
+
+            } else {
+
+                g3.setColor(BORDER);
+                g3.setStroke(new BasicStroke(1f));
+                g3.drawRoundRect(
+                        0, 0, getWidth() - 1, getHeight() - 1, 12, 12
+                );
+            }
+
+            if (getPassword().length == 0 && hint != null) {
+
+                g3.setFont(appFont(Font.PLAIN, FONT_SMALL));
+                g3.setColor(PLACEHOLDER);
+
+                FontMetrics fm = g3.getFontMetrics();
+
+                int x = getInsets().left;
+                int y = (getHeight() - fm.getHeight()) / 2
+                        + fm.getAscent();
+
+                g3.drawString(hint, x, y);
+            }
+
+            g3.dispose();
+        }
+    }
+
+    // ================= INPUT PILIHAN (ROLE) =================
+
+    private class InputCombo extends JComboBox<String> {
+
+        InputCombo(String[] items) {
+
+            super(items);
+
+            setOpaque(false);
+            setUI(new ComboUI());
+            setRenderer(new ComboRenderer());
+
+            setBorder(new EmptyBorder(0, 8, 0, 0));
+            setPreferredSize(new Dimension(200, 38));
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            addFocusListener(new FocusAdapter() {
+
+                @Override
+                public void focusGained(FocusEvent e) {
+                    repaint();
+                }
+
+                @Override
+                public void focusLost(FocusEvent e) {
+                    repaint();
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            g2.setColor(FIELD_BG);
+            g2.fillRoundRect(
+                    0, 0, getWidth(), getHeight(), 12, 12
+            );
+
+            g2.dispose();
+
+            super.paintComponent(g);
+        }
+
+        @Override
+        protected void paintBorder(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            if (isFocusOwner() || isPopupVisible()) {
+
+                g2.setColor(BROWN_LIGHT);
+                g2.setStroke(new BasicStroke(2f));
+                g2.drawRoundRect(
+                        1, 1, getWidth() - 3, getHeight() - 3, 12, 12
+                );
+
+            } else {
+
+                g2.setColor(BORDER);
+                g2.setStroke(new BasicStroke(1f));
+                g2.drawRoundRect(
+                        0, 0, getWidth() - 1, getHeight() - 1, 12, 12
+                );
+            }
+
+            g2.dispose();
+        }
+    }
+
+    private class ComboUI extends BasicComboBoxUI {
+
+        @Override
+        protected JButton createArrowButton() {
+            return new ArrowButton();
+        }
+
+        @Override
+        public void paintCurrentValueBackground(
+                Graphics g, Rectangle bounds, boolean hasFocus
+        ) {
+            // dikosongkan: latar digambar oleh InputCombo
+        }
+
+        @Override
+        public void paintCurrentValue(
+                Graphics g, Rectangle bounds, boolean hasFocus
+        ) {
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+            );
+
+            Object item = comboBox.getSelectedItem();
+
+            String text = item == null ? "" : item.toString();
+
+            g2.setFont(appFont(Font.PLAIN, FONT_SMALL));
+            g2.setColor(TEXT);
+
+            FontMetrics fm = g2.getFontMetrics();
+
+            int x = bounds.x + 5;
+            int y = bounds.y
+                    + (bounds.height - fm.getHeight()) / 2
+                    + fm.getAscent();
+
+            g2.drawString(text, x, y);
+
+            g2.dispose();
+        }
+
+        @Override
+        protected ComboPopup createPopup() {
+
+            BasicComboPopup popup =
+                    (BasicComboPopup) super.createPopup();
+
+            popup.setBorder(
+                    BorderFactory.createLineBorder(BORDER, 1)
+            );
+
+            return popup;
+        }
+    }
+
+    private class ArrowButton extends JButton {
+
+        ArrowButton() {
+
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+            setFocusPainted(false);
+            setFocusable(false);
+            setOpaque(false);
+
+            setBorder(new EmptyBorder(0, 0, 0, 0));
+
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            return new Dimension(34, 34);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_STROKE_CONTROL,
+                    RenderingHints.VALUE_STROKE_PURE
+            );
+
+            g2.setColor(BROWN_LIGHT);
+
+            g2.setStroke(
+                    new BasicStroke(
+                            2f,
+                            BasicStroke.CAP_ROUND,
+                            BasicStroke.JOIN_ROUND
+                    )
+            );
+
+            int cx = getWidth() / 2;
+            int cy = getHeight() / 2;
+
+            g2.drawPolyline(
+                    new int[]{cx - 5, cx, cx + 5},
+                    new int[]{cy - 2, cy + 3, cy - 2},
+                    3
+            );
+
+            g2.dispose();
+        }
+    }
+
+    private class ComboRenderer extends DefaultListCellRenderer {
+
+        @Override
+        public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus
+        ) {
+
+            JLabel label = (JLabel) super.getListCellRendererComponent(
+                    list, value, index, isSelected, cellHasFocus
+            );
+
+            label.setFont(appFont(Font.PLAIN, FONT_SMALL));
+            label.setBorder(new EmptyBorder(9, 14, 9, 14));
+
+            if (isSelected) {
+                label.setBackground(ROW_SELECT);
+                label.setForeground(BROWN_DARK);
+            } else {
+                label.setBackground(WHITE);
+                label.setForeground(TEXT);
+            }
+
+            return label;
+        }
+    }
+
+    // ================= HEADER =================
+
     private void createHeader() {
 
         JPanel header = new JPanel(new BorderLayout());
 
         header.setBackground(BROWN_DARK);
-        header.setPreferredSize(new Dimension(100, 85));
+        header.setPreferredSize(new Dimension(100, 104));
 
         header.setBorder(
-                new EmptyBorder(15, 25, 15, 25)
+                BorderFactory.createCompoundBorder(
+                        new MatteBorder(0, 0, 3, 0, BROWN_LIGHT),
+                        new EmptyBorder(12, 28, 9, 28)
+                )
         );
 
-        JLabel title = new JLabel(
-                "MANAJEMEN USER & ROLE",
-                SwingConstants.CENTER
+        JPanel textBox = new JPanel();
+
+        textBox.setOpaque(false);
+
+        textBox.setLayout(
+                new BoxLayout(textBox, BoxLayout.Y_AXIS)
         );
 
-        title.setFont(getFont(Font.BOLD, FONT_TITLE));
+        JLabel title = new JLabel("MANAJEMEN USER & ROLE");
+
+        title.setFont(appFont(Font.BOLD, FONT_TITLE));
         title.setForeground(CREAM);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        header.add(title, BorderLayout.CENTER);
+        JLabel subtitle = new JLabel(
+                "Kelola akun pengguna: tambah, ubah role/status, reset password, hapus, dan cari data."
+        );
+
+        subtitle.setFont(appFont(Font.PLAIN, FONT_SMALL));
+        subtitle.setForeground(new Color(230, 214, 195));
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        textBox.add(Box.createVerticalGlue());
+        textBox.add(title);
+        textBox.add(Box.createVerticalStrut(2));
+        textBox.add(subtitle);
+        textBox.add(Box.createVerticalGlue());
+
+        header.add(textBox, BorderLayout.CENTER);
 
         add(header, BorderLayout.NORTH);
     }
 
-    // Main content
+    // ================= MAIN CONTENT =================
+
     private void createMainContent() {
 
         mainContent = new JPanel(
-                new BorderLayout(0, 15)
+                new BorderLayout(0, 16)
         );
 
         mainContent.setBackground(BG);
 
         mainContent.setBorder(
-                new EmptyBorder(18, 22, 22, 22)
+                new EmptyBorder(18, 24, 22, 24)
         );
 
         add(mainContent, BorderLayout.CENTER);
     }
 
-    // Form user
+    // ================= FORM USER =================
+
     private void createForm() {
 
-        JPanel formCard = new JPanel(
+        RoundedPanel formCard = new RoundedPanel(
                 new BorderLayout(0, 12)
         );
 
-        formCard.setBackground(WHITE);
-
         formCard.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDER, 1),
-                        new EmptyBorder(15, 18, 15, 18)
-                )
+                new EmptyBorder(16, 22, 16, 22)
         );
 
+        // Judul form
         JLabel formTitle = new JLabel("Form User");
 
-        formTitle.setFont(getFont(Font.BOLD, 16));
+        formTitle.setFont(appFont(Font.BOLD, 15));
         formTitle.setForeground(BROWN_DARK);
+        formTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel formDesc = new JLabel(
+                "Lengkapi data di bawah ini, lalu klik Tambah. "
+                + "Pilih baris pada tabel untuk mengubah role/status atau menghapus user."
+        );
+
+        formDesc.setFont(appFont(Font.PLAIN, FONT_SMALL));
+        formDesc.setForeground(MUTED);
+        formDesc.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JPanel line = new JPanel();
+
+        line.setBackground(BORDER);
+        line.setPreferredSize(new Dimension(10, 1));
+        line.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        line.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JPanel heading = new JPanel();
+
+        heading.setOpaque(false);
 
         heading.setLayout(
                 new BoxLayout(heading, BoxLayout.Y_AXIS)
         );
 
-        heading.setBackground(WHITE);
         heading.add(formTitle);
-        heading.add(Box.createVerticalStrut(8));
+        heading.add(Box.createVerticalStrut(2));
+        heading.add(formDesc);
+        heading.add(Box.createVerticalStrut(10));
+        heading.add(line);
 
-        txtUsername = createTextField();
-        txtPassword = new JPasswordField();
+        // Input form
+        txtUsername = new InputField("Masukkan username");
+        txtPassword = new InputPassword("Masukkan password");
 
-        stylePasswordField(txtPassword);
-
-        cmbRole = new JComboBox<>(
+        cmbRole = new InputCombo(
                 new String[]{"ADMIN", "OPERATOR"}
         );
 
-        cmbRole.setFont(getFont(Font.PLAIN, FONT_NORMAL));
-        cmbRole.setBackground(WHITE);
-        cmbRole.setForeground(TEXT);
-        cmbRole.setPreferredSize(new Dimension(200, 36));
-        cmbRole.setBorder(BorderFactory.createLineBorder(BORDER));
-
         chkAktif = new JCheckBox("Aktif", true);
-        chkAktif.setFont(getFont(Font.PLAIN, FONT_NORMAL));
+        chkAktif.setFont(appFont(Font.PLAIN, FONT_SMALL));
         chkAktif.setForeground(TEXT);
-        chkAktif.setBackground(WHITE);
+        chkAktif.setOpaque(false);
         chkAktif.setFocusPainted(false);
+        chkAktif.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        chkAktif.setPreferredSize(new Dimension(200, 38));
 
+        // Panel input (2 kolom x 2 baris)
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBackground(WHITE);
 
-        addFormRow(inputPanel, "Username", txtUsername, 0);
-        addFormRow(inputPanel, "Password / Password Baru", txtPassword, 1);
-        addFormRow(inputPanel, "Role", cmbRole, 2);
-        addFormRow(inputPanel, "Status Akun", chkAktif, 3);
+        inputPanel.setOpaque(false);
 
+        addField(inputPanel, "Username", txtUsername, 0, 0);
+        addField(inputPanel, "Password / Password Baru", txtPassword, 1, 0);
+
+        addField(inputPanel, "Role", cmbRole, 0, 1);
+        addField(inputPanel, "Status Akun", chkAktif, 1, 1);
+
+        // Panel tombol (rata tengah)
         JPanel buttonPanel = new JPanel(
-                new FlowLayout(FlowLayout.CENTER, 10, 5)
+                new FlowLayout(FlowLayout.CENTER, 10, 0)
         );
 
-        buttonPanel.setBackground(WHITE);
+        buttonPanel.setOpaque(false);
 
         btnTambah = createButton("TAMBAH", BTN_BLUE);
         btnUbah = createButton("UBAH ROLE/STATUS", BTN_BLUE);
@@ -312,10 +863,11 @@ public class UserFrame extends JFrame {
         buttonPanel.add(btnReset);
 
         JPanel formBody = new JPanel(
-                new BorderLayout(0, 8)
+                new BorderLayout(0, 14)
         );
 
-        formBody.setBackground(WHITE);
+        formBody.setOpaque(false);
+
         formBody.add(inputPanel, BorderLayout.CENTER);
         formBody.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -324,6 +876,7 @@ public class UserFrame extends JFrame {
 
         mainContent.add(formCard, BorderLayout.NORTH);
 
+        // Event tombol
         btnTambah.addActionListener(e -> create());
         btnUbah.addActionListener(e -> update());
         btnResetPass.addActionListener(e -> resetPassword());
@@ -331,81 +884,46 @@ public class UserFrame extends JFrame {
         btnReset.addActionListener(e -> clear());
     }
 
-    // Baris input
-    private void addFormRow(
+    // ================= KOLOM INPUT (LABEL DI ATAS) =================
+
+    private void addField(
             JPanel panel,
             String labelText,
-            Component input,
+            JComponent input,
+            int col,
             int row
     ) {
 
+        int cols = 2;
+
+        int rightGap = (col == cols - 1) ? 0 : 18;
+        int topGap = (row == 0) ? 0 : 12;
+
         GridBagConstraints gbc = new GridBagConstraints();
 
-        gbc.gridy = row;
-        gbc.insets = new Insets(4, 3, 4, 3);
+        gbc.gridx = col;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
 
         JLabel label = new JLabel(labelText);
 
-        label.setFont(getFont(Font.PLAIN, FONT_NORMAL));
-        label.setForeground(TEXT);
+        label.setFont(appFont(Font.BOLD, FONT_SMALL));
+        label.setForeground(BROWN_DARK);
 
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.ipadx = 5;
+        gbc.gridy = row * 2;
+        gbc.insets = new Insets(topGap, 0, 5, rightGap);
 
         panel.add(label, gbc);
 
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.ipadx = 0;
+        gbc.gridy = row * 2 + 1;
+        gbc.insets = new Insets(0, 0, 0, rightGap);
 
         panel.add(input, gbc);
     }
 
-    // Text field
-    private JTextField createTextField() {
+    // ================= BUTTON =================
 
-        JTextField field = new JTextField();
-
-        field.setFont(getFont(Font.PLAIN, FONT_NORMAL));
-        field.setForeground(TEXT);
-        field.setBackground(WHITE);
-
-        field.setPreferredSize(new Dimension(200, 36));
-
-        field.setCaretColor(BROWN);
-
-        field.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDER, 1),
-                        new EmptyBorder(5, 10, 5, 10)
-                )
-        );
-
-        return field;
-    }
-
-    private void stylePasswordField(JPasswordField field) {
-
-        field.setFont(getFont(Font.PLAIN, FONT_NORMAL));
-        field.setForeground(TEXT);
-        field.setBackground(WHITE);
-        field.setCaretColor(BROWN);
-
-        field.setPreferredSize(new Dimension(200, 36));
-
-        field.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDER, 1),
-                        new EmptyBorder(5, 10, 5, 10)
-                )
-        );
-    }
-
-    // Tombol
     private JButton createButton(String text, Color color) {
 
         JButton button = new JButton(text) {
@@ -420,15 +938,23 @@ public class UserFrame extends JFrame {
                         RenderingHints.VALUE_ANTIALIAS_ON
                 );
 
+                g2.setRenderingHint(
+                        RenderingHints.KEY_TEXT_ANTIALIASING,
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+                );
+
                 Color backgroundColor;
                 Color textColor;
 
                 if (!isEnabled()) {
 
-                    backgroundColor = text.equals("HAPUS")
-                            ? DISABLED_RED : DISABLED_BROWN;
+                    if (text.equals("HAPUS")) {
+                        backgroundColor = DISABLED_RED;
+                    } else {
+                        backgroundColor = DISABLED_BROWN;
+                    }
 
-                    textColor = BROWN_DARK;
+                    textColor = new Color(91, 61, 43);
 
                 } else {
 
@@ -436,35 +962,35 @@ public class UserFrame extends JFrame {
                     textColor = Color.WHITE;
                 }
 
+                // Latar tombol
                 g2.setColor(backgroundColor);
 
                 g2.fillRoundRect(
                         0, 0,
                         getWidth() - 1,
                         getHeight() - 1,
-                        8, 8
+                        12, 12
                 );
 
+                // Garis tepi
                 g2.setColor(backgroundColor.darker());
 
                 g2.drawRoundRect(
                         0, 0,
                         getWidth() - 1,
                         getHeight() - 1,
-                        8, 8
+                        12, 12
                 );
 
+                // Teks tombol
                 g2.setFont(getFont());
                 g2.setColor(textColor);
 
-                java.awt.FontMetrics fm = g2.getFontMetrics();
+                FontMetrics fm = g2.getFontMetrics();
 
-                int textWidth = fm.stringWidth(getText());
-                int textHeight = fm.getAscent();
-
-                int x = (getWidth() - textWidth) / 2;
+                int x = (getWidth() - fm.stringWidth(getText())) / 2;
                 int y = (getHeight() - fm.getHeight()) / 2
-                        + textHeight;
+                        + fm.getAscent();
 
                 g2.drawString(getText(), x, y);
 
@@ -472,7 +998,10 @@ public class UserFrame extends JFrame {
             }
         };
 
-        button.setFont(getFont(Font.BOLD, FONT_SMALL));
+        button.setFont(
+                appFont(Font.BOLD, FONT_SMALL)
+        );
+
         button.setForeground(Color.WHITE);
         button.setBackground(color);
 
@@ -481,20 +1010,23 @@ public class UserFrame extends JFrame {
         button.setContentAreaFilled(false);
         button.setOpaque(false);
 
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setCursor(
+                new Cursor(Cursor.HAND_CURSOR)
+        );
 
         int width = text.equals("UBAH ROLE/STATUS") ? 155
                 : text.equals("RESET PASSWORD") ? 150
                 : text.equals("RESET FORM") ? 115
                 : 100;
 
-        button.setPreferredSize(new Dimension(width, 36));
+        button.setPreferredSize(
+                new Dimension(width, 38)
+        );
 
-        button.addMouseListener(
-                new java.awt.event.MouseAdapter() {
+        button.addMouseListener(new MouseAdapter() {
 
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
+            public void mouseEntered(MouseEvent e) {
 
                 if (button.isEnabled()) {
                     button.setBackground(color.brighter());
@@ -503,7 +1035,7 @@ public class UserFrame extends JFrame {
             }
 
             @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
+            public void mouseExited(MouseEvent e) {
 
                 button.setBackground(color);
                 button.repaint();
@@ -513,62 +1045,146 @@ public class UserFrame extends JFrame {
         return button;
     }
 
-    // Tabel user
+    // ================= RENDERER TABEL =================
+
+    private class CellRenderer extends DefaultTableCellRenderer {
+
+        CellRenderer(int align) {
+            setHorizontalAlignment(align);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                boolean hasFocus,
+                int row,
+                int column
+        ) {
+
+            super.getTableCellRendererComponent(
+                    table, value, isSelected, false, row, column
+            );
+
+            setFont(appFont(Font.PLAIN, FONT_SMALL));
+            setBorder(new EmptyBorder(0, 12, 0, 12));
+
+            if (isSelected) {
+                setBackground(ROW_SELECT);
+                setForeground(BROWN_DARK);
+            } else {
+                setBackground(row % 2 == 0 ? WHITE : ZEBRA);
+                setForeground(TEXT);
+            }
+
+            return this;
+        }
+    }
+
+    private class HeaderRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                boolean hasFocus,
+                int row,
+                int column
+        ) {
+
+            super.getTableCellRendererComponent(
+                    table, value, false, false, row, column
+            );
+
+            setFont(appFont(Font.BOLD, FONT_SMALL));
+            setBackground(TABLE_HEADER);
+            setForeground(BROWN_DARK);
+            setOpaque(true);
+
+            setBorder(
+                    BorderFactory.createCompoundBorder(
+                            new MatteBorder(0, 0, 2, 0, BORDER),
+                            new EmptyBorder(0, 12, 0, 12)
+                    )
+            );
+
+            setHorizontalAlignment(
+                    column == 1
+                            ? SwingConstants.LEFT
+                            : SwingConstants.CENTER
+            );
+
+            return this;
+        }
+    }
+
+    // ================= TABEL DATA USER =================
+
     private void createDataTable() {
 
-        JPanel dataPanel = new JPanel(
+        RoundedPanel dataPanel = new RoundedPanel(
                 new BorderLayout(0, 12)
         );
 
-        dataPanel.setBackground(WHITE);
-
         dataPanel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDER, 1),
-                        new EmptyBorder(15, 18, 18, 18)
-                )
+                new EmptyBorder(16, 22, 20, 22)
         );
 
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(WHITE);
-
+        // Judul tabel
         JLabel dataTitle = new JLabel("Daftar User");
 
-        dataTitle.setFont(getFont(Font.BOLD, 16));
+        dataTitle.setFont(appFont(Font.BOLD, 15));
         dataTitle.setForeground(BROWN_DARK);
-        dataTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        dataTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel searchPanel = new JPanel(
-                new FlowLayout(FlowLayout.LEFT, 8, 5)
+        lblJumlah = new JLabel("Menampilkan 0 data user");
+
+        lblJumlah.setFont(appFont(Font.PLAIN, FONT_SMALL));
+        lblJumlah.setForeground(MUTED);
+        lblJumlah.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JPanel titleBox = new JPanel();
+
+        titleBox.setOpaque(false);
+
+        titleBox.setLayout(
+                new BoxLayout(titleBox, BoxLayout.Y_AXIS)
         );
 
-        searchPanel.setBackground(WHITE);
+        titleBox.add(dataTitle);
+        titleBox.add(Box.createVerticalStrut(2));
+        titleBox.add(lblJumlah);
 
-        JLabel lblCari = new JLabel("Pencarian");
+        // Pencarian
+        txtCari = new InputField("Cari ID, username, atau role...");
 
-        lblCari.setFont(getFont(Font.PLAIN, FONT_NORMAL));
-        lblCari.setForeground(TEXT);
-
-        txtCari = createTextField();
-        txtCari.setPreferredSize(new Dimension(220, 34));
+        txtCari.setPreferredSize(new Dimension(270, 38));
 
         btnCari = createButton("CARI", BTN_BLUE);
-        btnCari.setPreferredSize(new Dimension(85, 34));
 
-        searchPanel.add(lblCari);
+        btnCari.setPreferredSize(new Dimension(90, 38));
+
+        JPanel searchPanel = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT, 8, 0)
+        );
+
+        searchPanel.setOpaque(false);
+
         searchPanel.add(txtCari);
         searchPanel.add(btnCari);
 
-        JPanel topContent = new JPanel(
-                new BorderLayout(0, 8)
+        JPanel topPanel = new JPanel(
+                new BorderLayout()
         );
 
-        topContent.setBackground(WHITE);
-        topContent.add(dataTitle, BorderLayout.WEST);
-        topContent.add(searchPanel, BorderLayout.SOUTH);
+        topPanel.setOpaque(false);
 
-        topPanel.add(topContent, BorderLayout.CENTER);
+        topPanel.add(titleBox, BorderLayout.WEST);
+        topPanel.add(searchPanel, BorderLayout.EAST);
 
+        // Model tabel
         tableModel = new DefaultTableModel(
                 new Object[]{
                     "ID",
@@ -586,54 +1202,60 @@ public class UserFrame extends JFrame {
 
         table = new JTable(tableModel);
 
-        table.setFont(getFont(Font.PLAIN, FONT_SMALL));
+        table.setFont(appFont(Font.PLAIN, FONT_SMALL));
         table.setForeground(TEXT);
         table.setBackground(WHITE);
-        table.setRowHeight(32);
+        table.setRowHeight(36);
 
         table.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
         );
 
-        table.setGridColor(BORDER);
+        table.setGridColor(new Color(240, 230, 216));
         table.setShowVerticalLines(false);
         table.setShowHorizontalLines(true);
+        table.setIntercellSpacing(new Dimension(0, 1));
         table.setFillsViewportHeight(true);
 
-        table.setSelectionBackground(
-                new Color(235, 221, 201)
-        );
-
+        table.setSelectionBackground(ROW_SELECT);
         table.setSelectionForeground(BROWN_DARK);
 
+        // Header tabel
         JTableHeader tableHeader = table.getTableHeader();
 
-        tableHeader.setFont(getFont(Font.BOLD, FONT_SMALL));
+        tableHeader.setFont(appFont(Font.BOLD, FONT_SMALL));
         tableHeader.setBackground(TABLE_HEADER);
         tableHeader.setForeground(BROWN_DARK);
-
-        tableHeader.setPreferredSize(new Dimension(100, 38));
+        tableHeader.setPreferredSize(new Dimension(100, 40));
         tableHeader.setReorderingAllowed(false);
 
+        // Lebar kolom
         table.getColumnModel().getColumn(0).setPreferredWidth(70);
         table.getColumnModel().getColumn(1).setPreferredWidth(250);
         table.getColumnModel().getColumn(2).setPreferredWidth(180);
         table.getColumnModel().getColumn(3).setPreferredWidth(180);
 
-        DefaultTableCellRenderer centerRenderer =
-                new DefaultTableCellRenderer();
+        // Renderer sel & header (ID, Role, dan Status Akun rata tengah)
+        CellRenderer leftRenderer =
+                new CellRenderer(SwingConstants.LEFT);
 
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        centerRenderer.setFont(getFont(Font.PLAIN, FONT_SMALL));
+        CellRenderer centerRenderer =
+                new CellRenderer(SwingConstants.CENTER);
 
-        table.getColumnModel().getColumn(0)
-                .setCellRenderer(centerRenderer);
+        HeaderRenderer headerRenderer = new HeaderRenderer();
 
-        table.getColumnModel().getColumn(2)
-                .setCellRenderer(centerRenderer);
+        for (int i = 0; i < table.getColumnCount(); i++) {
 
-        table.getColumnModel().getColumn(3)
-                .setCellRenderer(centerRenderer);
+            table.getColumnModel().getColumn(i)
+                    .setHeaderRenderer(headerRenderer);
+
+            table.getColumnModel().getColumn(i)
+                    .setCellRenderer(
+                            i == 1
+                                    ? leftRenderer
+                                    : centerRenderer
+                    );
+        }
 
         JScrollPane scroll = new JScrollPane(table);
 
@@ -648,20 +1270,22 @@ public class UserFrame extends JFrame {
 
         mainContent.add(dataPanel, BorderLayout.CENTER);
 
+        // Event pencarian
         btnCari.addActionListener(e -> searchData());
         txtCari.addActionListener(e -> searchData());
 
-        table.addMouseListener(
-                new java.awt.event.MouseAdapter() {
+        // Klik baris tabel
+        table.addMouseListener(new MouseAdapter() {
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 pick();
             }
         });
     }
 
-    // Memuat data
+    // ================= MEMUAT DATA =================
+
     private void load() {
 
         try {
@@ -682,13 +1306,18 @@ public class UserFrame extends JFrame {
                 });
             }
 
+            lblJumlah.setText(
+                    "Menampilkan " + data.size() + " data user"
+            );
+
         } catch (SQLException ex) {
 
             showError("Gagal memuat data user: " + ex.getMessage());
         }
     }
 
-    // Memilih data
+    // ================= PILIH DATA =================
+
     private void pick() {
 
         int row = table.getSelectedRow();
@@ -716,7 +1345,8 @@ public class UserFrame extends JFrame {
         );
     }
 
-    // Tambah user
+    // ================= TAMBAH USER =================
+
     private void create() {
 
         char[] p = txtPassword.getPassword();
@@ -763,7 +1393,8 @@ public class UserFrame extends JFrame {
         }
     }
 
-    // Ubah role dan status
+    // ================= UBAH ROLE DAN STATUS =================
+
     private void update() {
 
         if (selected < 0) {
@@ -798,7 +1429,8 @@ public class UserFrame extends JFrame {
         }
     }
 
-    // Reset password
+    // ================= RESET PASSWORD =================
+
     private void resetPassword() {
 
         if (selected < 0) {
@@ -836,7 +1468,8 @@ public class UserFrame extends JFrame {
         }
     }
 
-    // Hapus user
+    // ================= HAPUS USER =================
+
     private void delete() {
 
         if (selected < 0) {
@@ -890,7 +1523,8 @@ public class UserFrame extends JFrame {
         }
     }
 
-    // Pencarian
+    // ================= PENCARIAN DATA =================
+
     private void searchData() {
 
         String keyword = txtCari.getText().trim();
@@ -920,6 +1554,10 @@ public class UserFrame extends JFrame {
                 }
             }
 
+            lblJumlah.setText(
+                    "Menampilkan " + m.getRowCount() + " data user"
+            );
+
             clearSelection();
 
         } catch (SQLException ex) {
@@ -939,7 +1577,8 @@ public class UserFrame extends JFrame {
         table.clearSelection();
     }
 
-    // Reset form
+    // ================= RESET FORM =================
+
     private void clear() {
 
         selected = -1;
@@ -958,6 +1597,8 @@ public class UserFrame extends JFrame {
 
         txtUsername.requestFocus();
     }
+
+    // ================= PESAN ERROR =================
 
     private void showError(String message) {
 

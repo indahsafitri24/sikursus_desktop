@@ -1,9 +1,9 @@
-
 package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -11,14 +11,20 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
 
 import model.User;
 import report.ReportService;
@@ -27,37 +33,96 @@ import util.WindowManager;
 
 public class DashboardFrame extends JFrame {
 
-    // WARNA
+    // WARNA DASAR (COKLAT & KREM)
 
     private static final Color CREAM_BG =
-            new Color(247, 242, 234);
+            new Color(246, 240, 231);
 
     private static final Color CREAM_CARD =
-            new Color(255, 253, 249);
+            new Color(255, 252, 247);
 
     private static final Color CREAM_SOFT =
-            new Color(239, 229, 215);
+            new Color(240, 230, 216);
+
+    private static final Color CREAM_HOVER =
+            new Color(250, 244, 236);
 
     private static final Color BEIGE_BORDER =
-            new Color(222, 207, 188);
+            new Color(223, 208, 188);
 
     private static final Color BROWN_MAIN =
-            new Color(91, 57, 39);
+            new Color(98, 66, 48);
 
     private static final Color BROWN_HOVER =
-            new Color(120, 81, 59);
+            new Color(124, 88, 66);
 
     private static final Color BROWN_DARK =
-            new Color(54, 33, 24);
+            new Color(62, 40, 28);
 
     private static final Color BROWN_LIGHT =
-            new Color(153, 116, 88);
+            new Color(165, 130, 102);
 
     private static final Color TEXT_DARK =
-            new Color(66, 47, 35);
+            new Color(62, 44, 33);
 
     private static final Color TEXT_MUTED =
-            new Color(139, 116, 96);
+            new Color(136, 113, 94);
+
+    // WARNA TEMA ADMIN (espresso, lebih gelap)
+
+    private static final Color ADMIN_PRIMARY =
+            new Color(62, 40, 28);
+
+    private static final Color ADMIN_ACCENT =
+            new Color(98, 66, 48);
+
+    // WARNA TEMA OPERATOR (mocha, lebih hangat & terang)
+
+    private static final Color OP_PRIMARY =
+            new Color(139, 99, 72);
+
+    private static final Color OP_ACCENT =
+            new Color(160, 117, 88);
+
+    // WARNA AKSEN KARTU MODUL
+
+    private static final Color ACCENT_ORANGE =
+            new Color(214, 111, 40);
+
+    private static final Color ACCENT_TERRACOTTA =
+            new Color(178, 74, 60);
+
+    private static final Color ACCENT_GOLD =
+            new Color(184, 134, 30);
+
+    private static final Color ACCENT_PLUM =
+            new Color(122, 80, 110);
+
+    private static final Color ACCENT_GREEN =
+            new Color(70, 130, 90);
+
+    private static final Color ACCENT_TEAL =
+            new Color(45, 120, 120);
+
+    // UKURAN IKON MENU (piksel)
+
+    private static final int MENU_ICON_SIZE = 20;
+
+    // MEMBUAT WARNA PUDAR DARI WARNA AKSEN
+
+    private static Color tint(Color c, double ratio) {
+
+        int r = (int) (c.getRed() + (255 - c.getRed()) * ratio);
+        int g = (int) (c.getGreen() + (255 - c.getGreen()) * ratio);
+        int b = (int) (c.getBlue() + (255 - c.getBlue()) * ratio);
+
+        return new Color(r, g, b);
+    }
+
+    // TEMA AKTIF (berubah sesuai role)
+
+    private Color themePrimary = ADMIN_PRIMARY;
+    private Color themeAccent = ADMIN_ACCENT;
 
     // FONT
 
@@ -146,6 +211,13 @@ public class DashboardFrame extends JFrame {
     private final JLabel lblSubtitle = new JLabel();
     private final JLabel lblTitleInfo = new JLabel();
 
+    // JUDUL AKSES CEPAT MODUL (berubah sesuai role)
+    private final JLabel lblFlowTitle = new JLabel();
+
+    // DAFTAR KARTU MODUL
+    private final List<ModuleCard> moduleCards =
+            new ArrayList<>();
+
     private final JPanel header = new JPanel(
             new BorderLayout(10, 5)
     );
@@ -224,6 +296,271 @@ public class DashboardFrame extends JFrame {
         return new Dimension(width, height);
     }
 
+    // KARTU MODUL (AKSES CEPAT)
+
+    private class ModuleCard extends JPanel {
+
+        private final boolean adminOnly;
+        private final Runnable action;
+        private final Color accent;
+
+        private final JLabel lblTag;
+        private final JLabel lblTitle;
+        private final JLabel lblDesc;
+        private final JLabel lblArrow;
+
+        private boolean cardEnabled = true;
+        private boolean hover = false;
+
+        ModuleCard(
+                String tag,
+                String title,
+                String desc,
+                Color accent,
+                boolean adminOnly,
+                Runnable action
+        ) {
+
+            super(new BorderLayout(0, 8));
+
+            this.adminOnly = adminOnly;
+            this.action = action;
+            this.accent = accent;
+
+            setBackground(Color.WHITE);
+            setOpaque(true);
+
+            // BADGE KATEGORI
+            lblTag = new JLabel(tag);
+            lblTag.setFont(bold(9));
+            lblTag.setOpaque(true);
+            lblTag.setBorder(new EmptyBorder(4, 9, 4, 9));
+
+            // PANAH
+            lblArrow = new JLabel("\u2192");
+            lblArrow.setFont(
+                    new Font("SansSerif", Font.BOLD, 16)
+            );
+
+            JPanel top = new JPanel(new BorderLayout());
+            top.setOpaque(false);
+
+            JPanel tagWrap = new JPanel(
+                    new BorderLayout()
+            );
+            tagWrap.setOpaque(false);
+            tagWrap.add(lblTag, BorderLayout.WEST);
+
+            top.add(tagWrap, BorderLayout.CENTER);
+            top.add(lblArrow, BorderLayout.EAST);
+
+            // JUDUL & DESKRIPSI
+            lblTitle = new JLabel(title);
+            lblTitle.setFont(bold(15));
+
+            lblDesc = new JLabel(desc);
+            lblDesc.setFont(regular(10));
+
+            JPanel text = new JPanel();
+            text.setOpaque(false);
+            text.setLayout(
+                    new BoxLayout(text, BoxLayout.Y_AXIS)
+            );
+
+            lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+            lblDesc.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            text.add(lblTitle);
+            text.add(Box.createVerticalStrut(4));
+            text.add(lblDesc);
+
+            add(top, BorderLayout.NORTH);
+            add(text, BorderLayout.CENTER);
+
+            // EVENT MOUSE (dipasang di kartu & semua isinya)
+            MouseAdapter ma = new MouseAdapter() {
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    if (!cardEnabled) return;
+                    hover = true;
+                    refreshLook();
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+
+                    java.awt.Point p =
+                            SwingUtilities.convertPoint(
+                                    e.getComponent(),
+                                    e.getPoint(),
+                                    ModuleCard.this
+                            );
+
+                    if (ModuleCard.this.contains(p)) return;
+
+                    hover = false;
+                    refreshLook();
+                }
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+
+                    if (!cardEnabled) return;
+
+                    if (SwingUtilities.isLeftMouseButton(e)) {
+                        ModuleCard.this.action.run();
+                    }
+                }
+            };
+
+            addMouseListener(ma);
+            attachMouse(this, ma);
+
+            setCardEnabled(true);
+        }
+
+        private void attachMouse(
+                Component c,
+                MouseAdapter ma
+        ) {
+
+            if (c instanceof Container) {
+
+                for (Component child
+                        : ((Container) c).getComponents()) {
+
+                    child.addMouseListener(ma);
+                    attachMouse(child, ma);
+                }
+            }
+        }
+
+        // MENYESUAIKAN TAMPILAN (normal / hover / nonaktif)
+        void refreshLook() {
+
+            if (!cardEnabled) {
+
+                Color off = new Color(190, 178, 165);
+
+                lblTitle.setForeground(off);
+                lblDesc.setForeground(off);
+                lblTag.setForeground(off);
+                lblTag.setBackground(new Color(245, 241, 235));
+                lblArrow.setForeground(off);
+                setBackground(new Color(251, 249, 245));
+
+                setBorder(
+                        BorderFactory.createCompoundBorder(
+                                new LineBorder(
+                                        BEIGE_BORDER, 1, true
+                                ),
+                                new EmptyBorder(14, 17, 14, 17)
+                        )
+                );
+
+            } else if (hover) {
+
+                lblTitle.setForeground(BROWN_DARK);
+                lblDesc.setForeground(TEXT_MUTED);
+                lblTag.setForeground(Color.WHITE);
+                lblTag.setBackground(accent);
+                lblArrow.setForeground(accent);
+                setBackground(tint(accent, 0.94));
+
+                setBorder(
+                        BorderFactory.createCompoundBorder(
+                                new LineBorder(
+                                        accent, 2, true
+                                ),
+                                new EmptyBorder(13, 16, 13, 16)
+                        )
+                );
+
+            } else {
+
+                lblTitle.setForeground(BROWN_DARK);
+                lblDesc.setForeground(TEXT_MUTED);
+                lblTag.setForeground(accent);
+                lblTag.setBackground(tint(accent, 0.86));
+                lblArrow.setForeground(accent);
+                setBackground(Color.WHITE);
+
+                setBorder(
+                        BorderFactory.createCompoundBorder(
+                                new LineBorder(
+                                        BEIGE_BORDER, 1, true
+                                ),
+                                new EmptyBorder(14, 17, 14, 17)
+                        )
+                );
+            }
+
+            repaint();
+        }
+
+        boolean isAdminOnly() {
+            return adminOnly;
+        }
+
+        void setCardEnabled(boolean enabled) {
+
+            cardEnabled = enabled;
+            hover = false;
+
+            String tip = enabled
+                    ? "Klik untuk membuka modul"
+                    : "Hanya dapat diakses oleh Administrator";
+
+            setToolTipTextRecursive(this, tip);
+
+            setCursor(
+                    enabled
+                            ? new Cursor(Cursor.HAND_CURSOR)
+                            : new Cursor(Cursor.DEFAULT_CURSOR)
+            );
+
+            refreshLook();
+        }
+
+        private void setToolTipTextRecursive(
+                JComponent c,
+                String tip
+        ) {
+
+            c.setToolTipText(tip);
+
+            for (Component child : c.getComponents()) {
+
+                if (child instanceof JComponent) {
+                    setToolTipTextRecursive(
+                            (JComponent) child, tip
+                    );
+                }
+            }
+        }
+    }
+
+    // MEMBUAT KARTU MODUL
+
+    private ModuleCard createModuleCard(
+            String tag,
+            String title,
+            String desc,
+            Color accent,
+            boolean adminOnly,
+            Runnable action
+    ) {
+
+        ModuleCard card = new ModuleCard(
+                tag, title, desc, accent, adminOnly, action
+        );
+
+        moduleCards.add(card);
+
+        return card;
+    }
+
     // BODY DASHBOARD
 
     private void buildBody() {
@@ -249,10 +586,13 @@ public class DashboardFrame extends JFrame {
 
         // HEADER
 
-        header.setBackground(BROWN_MAIN);
+        header.setBackground(ADMIN_PRIMARY);
 
         header.setBorder(
-                new EmptyBorder(16, 22, 16, 22)
+                BorderFactory.createCompoundBorder(
+                        new MatteBorder(0, 0, 3, 0, BROWN_LIGHT),
+                        new EmptyBorder(16, 22, 14, 22)
+                )
         );
 
         JPanel headerText = new JPanel();
@@ -299,7 +639,7 @@ public class DashboardFrame extends JFrame {
         lblVersion.setFont(bold(9));
 
         lblVersion.setForeground(
-                new Color(235, 219, 200)
+                new Color(220, 200, 178)
         );
 
         header.add(headerText, BorderLayout.CENTER);
@@ -436,10 +776,14 @@ public class DashboardFrame extends JFrame {
 
         JPanel accentLine = new JPanel();
 
-        accentLine.setBackground(BROWN_LIGHT);
+        accentLine.setBackground(BEIGE_BORDER);
 
         accentLine.setMaximumSize(
-                new Dimension(Integer.MAX_VALUE, 3)
+                new Dimension(Integer.MAX_VALUE, 2)
+        );
+
+        accentLine.setPreferredSize(
+                new Dimension(10, 2)
         );
 
         accentLine.setAlignmentX(
@@ -463,21 +807,33 @@ public class DashboardFrame extends JFrame {
                 Component.LEFT_ALIGNMENT
         );
 
-        JLabel lblFlowTitle = new JLabel(
-                "ALUR UTAMA SISTEM"
-        );
+        // JUDUL AKSES CEPAT MODUL
 
-        lblFlowTitle.setFont(bold(12));
-        lblFlowTitle.setForeground(BROWN_MAIN);
+        lblFlowTitle.setText("Akses Cepat Modul");
+
+        lblFlowTitle.setFont(bold(13));
+        lblFlowTitle.setForeground(BROWN_DARK);
 
         lblFlowTitle.setAlignmentX(
                 Component.LEFT_ALIGNMENT
         );
 
-        // ALUR UTAMA
+        // AKSES CEPAT MODUL (KARTU)
+
+        // tooltip bernuansa coklat-krem
+        UIManager.put("ToolTip.background", CREAM_SOFT);
+        UIManager.put("ToolTip.foreground", TEXT_DARK);
+        UIManager.put(
+                "ToolTip.border",
+                BorderFactory.createCompoundBorder(
+                        new LineBorder(BROWN_LIGHT, 1),
+                        new EmptyBorder(3, 6, 3, 6)
+                )
+        );
+        UIManager.put("ToolTip.font", regular(11));
 
         JPanel flowPanel = new JPanel(
-                new GridLayout(1, 5, 7, 0)
+                new GridLayout(2, 3, 12, 12)
         );
 
         flowPanel.setOpaque(false);
@@ -486,38 +842,81 @@ public class DashboardFrame extends JFrame {
                 Component.LEFT_ALIGNMENT
         );
 
-        String[] flowItems = {
-            "Master Data",
-            "Kelas",
-            "Pendaftaran",
-            "Pembayaran",
-            "Laporan"
-        };
+        flowPanel.add(createModuleCard(
+                "PESERTA",
+                "Data Peserta",
+                "Kelola biodata & riwayat peserta",
+                ACCENT_ORANGE,
+                false,
+                () -> WindowManager.open(
+                        PesertaFrame.class, PesertaFrame::new
+                )
+        ));
 
-        for (String item : flowItems) {
+        flowPanel.add(createModuleCard(
+                "INSTRUKTUR",
+                "Data Instruktur",
+                "Manajemen pengajar & keahlian",
+                ACCENT_TERRACOTTA,
+                true,
+                () -> WindowManager.open(
+                        InstrukturFrame.class, InstrukturFrame::new
+                )
+        ));
 
-            JLabel label = new JLabel(
-                    "<html><center>" + item + "</center></html>",
-                    SwingConstants.CENTER
-            );
+        flowPanel.add(createModuleCard(
+                "KURSUS",
+                "Program Kursus",
+                "Daftar materi, kurikulum & biaya",
+                ACCENT_GOLD,
+                true,
+                () -> WindowManager.open(
+                        KursusFrame.class, KursusFrame::new
+                )
+        ));
 
-            label.setFont(bold(15));
+        flowPanel.add(createModuleCard(
+                "KELAS",
+                "Jadwal Kelas",
+                "Atur ruang, kuota & jadwal",
+                ACCENT_PLUM,
+                true,
+                () -> WindowManager.open(
+                        KelasFrame.class, KelasFrame::new
+                )
+        ));
 
-            label.setForeground(CREAM_CARD);
-            label.setOpaque(true);
-            label.setBackground(BROWN_MAIN);
+        flowPanel.add(createModuleCard(
+                "TRANSAKSI",
+                "Pendaftaran",
+                "Registrasi peserta ke kelas baru",
+                ACCENT_GREEN,
+                false,
+                () -> WindowManager.open(
+                        PendaftaranFrame.class,
+                        PendaftaranFrame::new
+                )
+        ));
 
-            label.setBorder(
-                    BorderFactory.createCompoundBorder(
-                            new LineBorder(
-                                    BROWN_LIGHT, 2, true
-                            ),
-                            new EmptyBorder(13, 5, 13, 5)
-                    )
-            );
+        flowPanel.add(createModuleCard(
+                "KEUANGAN",
+                "Pembayaran",
+                "Verifikasi tagihan & bukti bayar",
+                ACCENT_TEAL,
+                false,
+                () -> WindowManager.open(
+                        PembayaranFrame.class,
+                        PembayaranFrame::new
+                )
+        ));
 
-            flowPanel.add(label);
-        }
+        // cegah kartu melar vertikal
+        flowPanel.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        flowPanel.getPreferredSize().height
+                )
+        );
 
         // DATABASE
 
@@ -528,7 +927,10 @@ public class DashboardFrame extends JFrame {
         databasePanel.setBackground(CREAM_SOFT);
 
         databasePanel.setBorder(
-                new EmptyBorder(10, 13, 10, 13)
+                BorderFactory.createCompoundBorder(
+                        new MatteBorder(0, 4, 0, 0, BROWN_LIGHT),
+                        new EmptyBorder(10, 13, 10, 13)
+                )
         );
 
         JLabel lblDatabase = new JLabel(
@@ -550,6 +952,14 @@ public class DashboardFrame extends JFrame {
 
         databasePanel.setAlignmentX(
                 Component.LEFT_ALIGNMENT
+        );
+
+        // cegah panel database melar vertikal
+        databasePanel.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        databasePanel.getPreferredSize().height
+                )
         );
 
         // TIPS
@@ -585,7 +995,7 @@ public class DashboardFrame extends JFrame {
         infoPanel.add(Box.createVerticalStrut(11));
 
         infoPanel.add(lblFlowTitle);
-        infoPanel.add(Box.createVerticalStrut(7));
+        infoPanel.add(Box.createVerticalStrut(8));
 
         infoPanel.add(flowPanel);
         infoPanel.add(Box.createVerticalStrut(12));
@@ -594,6 +1004,9 @@ public class DashboardFrame extends JFrame {
         infoPanel.add(Box.createVerticalStrut(9));
 
         infoPanel.add(lblTips);
+
+        // sisa ruang kosong ditaruh di bawah
+        infoPanel.add(Box.createVerticalGlue());
 
         gbc.gridy = 2;
         gbc.weighty = 1.0;
@@ -621,7 +1034,11 @@ public class DashboardFrame extends JFrame {
 
         if (admin) {
 
-            header.setBackground(BROWN_DARK);
+            // ADMIN: coklat espresso (gelap)
+            themePrimary = ADMIN_PRIMARY;
+            themeAccent = ADMIN_ACCENT;
+
+            header.setBackground(ADMIN_PRIMARY);
 
             lblSubtitle.setText(
                     "Panel Administrator - Pengelolaan Sistem Kursus"
@@ -631,27 +1048,35 @@ public class DashboardFrame extends JFrame {
                     "ADMINISTRATOR DASHBOARD"
             );
 
-            lblTitleInfo.setForeground(BROWN_DARK);
+            lblTitleInfo.setForeground(ADMIN_PRIMARY);
+
+            lblFlowTitle.setText(
+                    "Akses Cepat Modul (Mode Administrator - Akses Penuh)"
+            );
 
             session.setBackground(CREAM_CARD);
 
             session.setBorder(
                     BorderFactory.createCompoundBorder(
                             new LineBorder(
-                                    BROWN_LIGHT, 1, true
+                                    ADMIN_ACCENT, 1, true
                             ),
                             new EmptyBorder(11, 18, 11, 18)
                     )
             );
 
             lblRole.setForeground(CREAM_CARD);
-            lblRole.setBackground(BROWN_MAIN);
+            lblRole.setBackground(ADMIN_PRIMARY);
 
             infoPanel.setBackground(CREAM_CARD);
 
         } else {
 
-            header.setBackground(BROWN_HOVER);
+            // OPERATOR: coklat mocha (lebih hangat & terang)
+            themePrimary = OP_PRIMARY;
+            themeAccent = OP_ACCENT;
+
+            header.setBackground(OP_PRIMARY);
 
             lblSubtitle.setText(
                     "Panel Operator - Pelayanan dan Operasional Kursus"
@@ -661,10 +1086,14 @@ public class DashboardFrame extends JFrame {
                     "OPERATIONAL DASHBOARD"
             );
 
-            lblTitleInfo.setForeground(BROWN_HOVER);
+            lblTitleInfo.setForeground(OP_PRIMARY);
+
+            lblFlowTitle.setText(
+                    "Akses Cepat Modul (Mode Operator - Akses Terbatas)"
+            );
 
             session.setBackground(
-                    new Color(250, 246, 239)
+                    new Color(252, 247, 240)
             );
 
             session.setBorder(
@@ -676,17 +1105,22 @@ public class DashboardFrame extends JFrame {
                     )
             );
 
-            lblRole.setForeground(BROWN_MAIN);
+            lblRole.setForeground(OP_PRIMARY);
             lblRole.setBackground(CREAM_SOFT);
 
             infoPanel.setBackground(
-                    new Color(250, 246, 239)
+                    new Color(252, 247, 240)
             );
         }
 
         lblSubtitle.setForeground(
-                new Color(230, 214, 195)
+                new Color(236, 222, 205)
         );
+
+        // perbarui warna semua kartu
+        for (ModuleCard card : moduleCards) {
+            card.refreshLook();
+        }
 
         repaint();
     }
@@ -843,15 +1277,9 @@ public class DashboardFrame extends JFrame {
                 CREAM_CARD
         );
 
-        UIManager.put(
-                "MenuItem.selectionBackground",
-                BROWN_HOVER
-        );
-
-        UIManager.put(
-                "MenuItem.selectionForeground",
-                CREAM_CARD
-        );
+        // catatan: MenuItem.selectionBackground/Foreground
+        // sengaja tidak diatur, supaya sorotan item dropdown
+        // sama seperti item dropdown Master
 
         UIManager.put(
                 "PopupMenu.background",
@@ -903,12 +1331,12 @@ public class DashboardFrame extends JFrame {
 
         JMenu rep = createMenu("Laporan");
 
-        JMenuItem rp = createMenuItem("Peserta - Semua");
-        JMenuItem rr = createMenuItem("Pendaftaran - Semua");
-        JMenuItem rt = createMenuItem("Pembayaran - Semua");
+        JMenuItem rp = createMenuItem("Data Peserta");
+        JMenuItem rr = createMenuItem("Data Pendaftaran");
+        JMenuItem rt = createMenuItem("Data Pembayaran");
 
         JMenuItem rtp = createMenuItem(
-                "Pembayaran - Rentang Tanggal"
+                "Pembayaran per Periode"
         );
 
         rep.add(rp);
@@ -1022,11 +1450,28 @@ public class DashboardFrame extends JFrame {
         });
 
         // IKON MENU
+        // lokasi file: src/main/resources/icons/
 
-        miPeserta.setIcon(loadIcon("/icons/peserta.png"));
-        miInstruktur.setIcon(loadIcon("/icons/instruktur.png"));
-        miKursus.setIcon(loadIcon("/icons/kursus.png"));
-        miKelas.setIcon(loadIcon("/icons/kelas.png"));
+        // master
+        miUsers.setIcon(loadMenuIcon("users"));
+        miPeserta.setIcon(loadMenuIcon("peserta"));
+        miInstruktur.setIcon(loadMenuIcon("instruktur"));
+        miKursus.setIcon(loadMenuIcon("kursus"));
+        miKelas.setIcon(loadMenuIcon("kelas"));
+
+        // transaksi
+        reg.setIcon(loadMenuIcon("pendaftaran"));
+        pay.setIcon(loadMenuIcon("pembayaran"));
+
+        // laporan
+        rp.setIcon(loadMenuIcon("laporan_peserta"));
+        rr.setIcon(loadMenuIcon("laporan_pendaftaran"));
+        rt.setIcon(loadMenuIcon("laporan_pembayaran"));
+        rtp.setIcon(loadMenuIcon("laporan_periode"));
+
+        // keluar
+        logout.setIcon(loadMenuIcon("logout"));
+        exit.setIcon(loadMenuIcon("tutup"));
     }
 
     // MEMBUAT MENU
@@ -1052,34 +1497,55 @@ public class DashboardFrame extends JFrame {
     }
 
     // MEMBUAT ITEM MENU
+    // dibuat polos (tanpa warna khusus) agar sama
+    // seperti item dropdown Master
 
     private JMenuItem createMenuItem(String title) {
 
-        JMenuItem item = new JMenuItem(title);
-
-        item.setFont(regular(11));
-        item.setForeground(CREAM_CARD);
-        item.setBackground(BROWN_MAIN);
-        item.setOpaque(true);
-
-        item.setBorder(
-                new EmptyBorder(9, 17, 9, 17)
-        );
-
-        item.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
-        );
-
-        return item;
+        return new JMenuItem(title);
     }
 
-    // MEMUAT IKON
+    // MEMUAT IKON MENU
+    // mencoba beberapa kemungkinan nama file, lalu
+    // mengecilkan ikon ke ukuran MENU_ICON_SIZE
 
-    private ImageIcon loadIcon(String path) {
+    private ImageIcon loadMenuIcon(String name) {
 
-        URL u = getClass().getResource(path);
+        String capitalized =
+                name.substring(0, 1).toUpperCase()
+                + name.substring(1);
 
-        return u == null ? null : new ImageIcon(u);
+        String[] candidates = {
+            "/icons/" + name + ".png",
+            "/icons/" + name + ".png.png",
+            "/icons/" + capitalized + ".png",
+            "/icons/" + name.toUpperCase() + ".png",
+            "/" + name + ".png"
+        };
+
+        for (String path : candidates) {
+
+            URL u = getClass().getResource(path);
+
+            if (u != null) {
+
+                ImageIcon raw = new ImageIcon(u);
+
+                Image scaled = raw.getImage().getScaledInstance(
+                        MENU_ICON_SIZE,
+                        MENU_ICON_SIZE,
+                        Image.SCALE_SMOOTH
+                );
+
+                return new ImageIcon(scaled);
+            }
+        }
+
+        System.out.println(
+                "Ikon menu tidak ditemukan: " + name
+        );
+
+        return null;
     }
 
     // HAK AKSES PENGGUNA
@@ -1115,6 +1581,14 @@ public class DashboardFrame extends JFrame {
         miKelas.setEnabled(admin);
 
         miPeserta.setEnabled(true);
+
+        // KARTU MODUL MENGIKUTI HAK AKSES
+        for (ModuleCard card : moduleCards) {
+
+            if (card.isAdminOnly()) {
+                card.setCardEnabled(admin);
+            }
+        }
 
         applyRoleTheme(admin);
     }
