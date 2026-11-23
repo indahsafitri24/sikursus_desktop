@@ -2,6 +2,7 @@ package view;
 
 import dao.PesertaDAO;
 import model.Peserta;
+import report.ReportService;
 
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -37,7 +38,7 @@ public class PesertaFrame extends JFrame {
     private DefaultTableModel tableModel;
 
     private JButton btnSimpan, btnUbah, btnHapus;
-    private JButton btnReset, btnCetakSemua, btnCari;
+    private JButton btnReset, btnCetak, btnCari;
 
     private JLabel lblJumlah;
 
@@ -747,13 +748,13 @@ public class PesertaFrame extends JFrame {
         btnUbah = createButton("UBAH", BTN_BLUE);
         btnHapus = createButton("HAPUS", BTN_RED);
         btnReset = createButton("RESET", BTN_GRAY);
-        btnCetakSemua = createButton("CETAK SEMUA", BTN_GREEN);
+        btnCetak = createButton("CETAK", BTN_GREEN);
 
         buttonPanel.add(btnSimpan);
         buttonPanel.add(btnUbah);
         buttonPanel.add(btnHapus);
         buttonPanel.add(btnReset);
-        buttonPanel.add(btnCetakSemua);
+        buttonPanel.add(btnCetak);
 
         JPanel formBody = new JPanel(
                 new BorderLayout(0, 14)
@@ -780,7 +781,7 @@ public class PesertaFrame extends JFrame {
             clearForm();
         });
 
-        btnCetakSemua.addActionListener(e -> printData());
+        btnCetak.addActionListener(e -> ReportService.showPeserta(this));
     }
 
     // ================= KOLOM INPUT (LABEL DI ATAS) =================

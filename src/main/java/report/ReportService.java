@@ -23,93 +23,64 @@ public final class ReportService {
     private ReportService() {
     }
 
+    // ===== Praktikum 12 =====
+    public static void tampilkanLaporanPeserta() {
+        showPeserta(null);
+    }
+
     public static void showPeserta(Component parent) {
-
-        show(
-            parent,
-            "laporan_peserta",
-            new HashMap<String, Object>()
-        );
+        show(parent, "laporan_peserta", new HashMap<String, Object>());
     }
 
-    public static void showPendaftaranSemua(
-            Component parent) {
-
-        show(
-            parent,
-            "laporan_pendaftaran_semua",
-            new HashMap<String, Object>()
-        );
+    // ===== Praktikum 13 =====
+    public static void cetakPendaftaran(int idPendaftaran) {
+        showPendaftaranById(null, idPendaftaran);
     }
 
-    public static void showPendaftaranById(
-            Component parent, int idPendaftaran) {
+    public static void showPendaftaranById(Component parent, int idPendaftaran) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("P_ID_PENDAFTARAN", idPendaftaran);
 
-        Map<String, Object> p =
-                new HashMap<>();
+        System.out.println("ID pendaftaran dikirim ke report: " + idPendaftaran);
 
-        p.put("P_ID_PENDAFTARAN", idPendaftaran);
-
-        show(
-            parent,
-            "laporan_pendaftaran",
-            p
-        );
+        show(parent, "laporan_pendaftaran", params);
     }
 
-    public static void showPembayaranSemua(
-            Component parent) {
-
-        show(
-            parent,
-            "laporan_pembayaran_semua",
-            new HashMap<String, Object>()
-        );
+    public static void showPendaftaranSemua(Component parent) {
+        show(parent, "laporan_pendaftaran_semua", new HashMap<String, Object>());
     }
 
-    public static void showPembayaranPeriode(
-            Component parent, Date awal, Date akhir) {
-
-        Map<String, Object> p =
-                new HashMap<>();
-
-        p.put("P_TANGGAL_AWAL", awal);
-        p.put("P_TANGGAL_AKHIR", akhir);
-
-        show(
-            parent,
-            "laporan_pembayaran",
-            p
-        );
+    public static void showPembayaranSemua(Component parent) {
+        show(parent, "laporan_pembayaran_semua", new HashMap<String, Object>());
     }
 
-    private static void show(
-            Component parent,
-            String baseName,
-            Map<String, Object> params) {
+    public static void showPembayaranPeriode(Component parent, Date awal, Date akhir) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("P_TANGGAL_AWAL", awal);
+        params.put("P_TANGGAL_AKHIR", akhir);
+
+        System.out.println("Periode pembayaran: " + awal + " s.d. " + akhir);
+
+        show(parent, "laporan_pembayaran", params);
+    }
+
+    private static void show(Component parent, String baseName, Map<String, Object> params) {
 
         try (Connection conn = Database.getConnection()) {
 
             JasperReport report = loadReport(baseName);
 
-            JasperPrint print =
-                    JasperFillManager.fillReport(
-                        report,
-                        params,
-                        conn
-                    );
+            JasperPrint print = JasperFillManager.fillReport(report, params, conn);
 
             if (print.getPages().isEmpty()) {
-
                 JOptionPane.showMessageDialog(
-                    parent,
-                    "Report tidak memiliki data "
-                    + "untuk kriteria yang dipilih."
+                        parent,
+                        "Data laporan tidak ditemukan untuk kriteria yang dipilih."
                 );
-
                 return;
             }
 
+            // false = menutup viewer TIDAK menutup seluruh aplikasi
             JasperViewer.viewReport(print, false);
 
         } catch (Exception ex) {
@@ -117,91 +88,65 @@ public final class ReportService {
             ex.printStackTrace();
 
             JOptionPane.showMessageDialog(
-                parent,
-                "Gagal membuka laporan "
-                + baseName + ":\n"
-                + ex.getMessage(),
-                "JasperReports",
-                JOptionPane.ERROR_MESSAGE
+                    parent,
+                    "Gagal membuka laporan " + baseName + ":\n" + ex.getMessage(),
+                    "JasperReports",
+                    JOptionPane.ERROR_MESSAGE
             );
         }
     }
 
-    private static JasperReport loadReport(
-            String baseName) throws Exception {
+    private static JasperReport loadReport(String baseName) throws Exception {
 
-        String compiled =
-                "/report/" + baseName + ".jasper";
+        // 1) Muat file .jasper (hasil compile)
+        String compiled = "/report/" + baseName + ".jasper";
 
-        try (InputStream in =
-                ReportService.class.getResourceAsStream(
-                    compiled
-                )) {
-
+        try (InputStream in = ReportService.class.getResourceAsStream(compiled)) {
             if (in != null) {
-
-                return (JasperReport)
-                        JRLoader.loadObject(in);
+                try {
+                    return (JasperReport) JRLoader.loadObject(in);
+                } catch (Exception ex) {
+                    System.err.println("Gagal memuat " + compiled
+                            + " (" + ex.getMessage() + "), compile ulang dari .jrxml");
+                }
             }
         }
 
-        String source =
-                "/report/" + baseName + ".jrxml";
+        // 2) Cadangan: compile langsung dari .jrxml
+        String source = "/report/" + baseName + ".jrxml";
 
-        try (InputStream in =
-                ReportService.class.getResourceAsStream(
-                    source
-                )) {
-
+        try (InputStream in = ReportService.class.getResourceAsStream(source)) {
             if (in == null) {
-
                 throw new IllegalStateException(
-                    "Resource report tidak ditemukan: "
-                    + source
+                        "File laporan tidak ditemukan di resource: " + source
                 );
             }
-
             return JasperCompileManager.compileReport(in);
         }
     }
 
-    public static void exportPdf(
-            Component parent,
-            JasperPrint print,
-            String defaultName) {
+    public static void exportPdf(Component parent, JasperPrint print, String defaultName) {
 
-        JFileChooser chooser =
-                new JFileChooser();
+        JFileChooser chooser = new JFileChooser();
+        chooser.setSelectedFile(new java.io.File(defaultName));
 
-        chooser.setSelectedFile(
-            new java.io.File(defaultName)
-        );
-
-        if (chooser.showSaveDialog(parent)
-                != JFileChooser.APPROVE_OPTION) {
-
+        if (chooser.showSaveDialog(parent) != JFileChooser.APPROVE_OPTION) {
             return;
         }
 
         try {
-
             JasperExportManager.exportReportToPdfFile(
-                print,
-                chooser.getSelectedFile().getAbsolutePath()
+                    print,
+                    chooser.getSelectedFile().getAbsolutePath()
             );
-
-            JOptionPane.showMessageDialog(
-                parent,
-                "PDF berhasil disimpan."
-            );
+            JOptionPane.showMessageDialog(parent, "PDF berhasil disimpan.");
 
         } catch (Exception ex) {
-
             JOptionPane.showMessageDialog(
-                parent,
-                "Export PDF gagal: " + ex.getMessage(),
-                "JasperReports",
-                JOptionPane.ERROR_MESSAGE
+                    parent,
+                    "Export PDF gagal: " + ex.getMessage(),
+                    "JasperReports",
+                    JOptionPane.ERROR_MESSAGE
             );
         }
     }

@@ -1,11 +1,296 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="laporan_pembayaran" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
-<parameter name="P_TANGGAL_AWAL" class="java.sql.Date"/>
-<parameter name="P_TANGGAL_AKHIR" class="java.sql.Date"/>
-<queryString language="SQL"><![CDATA[SELECT pb.id_pembayaran,pb.tanggal_bayar,pb.nominal,pb.metode,pb.status AS status_pembayaran,p.id_pendaftaran,ps.nim,ps.nama AS nama_peserta,kls.nama_kelas,krs.nama_kursus FROM pembayaran pb JOIN pendaftaran p ON pb.id_pendaftaran=p.id_pendaftaran JOIN peserta ps ON p.id_peserta=ps.id_peserta JOIN kelas kls ON p.id_kelas=kls.id_kelas JOIN kursus krs ON kls.id_kursus=krs.id_kursus WHERE pb.tanggal_bayar BETWEEN $P{P_TANGGAL_AWAL} AND $P{P_TANGGAL_AKHIR} ORDER BY pb.tanggal_bayar,pb.id_pembayaran]]></queryString>
-<field name="id_pembayaran" class="java.lang.Integer"/><field name="tanggal_bayar" class="java.sql.Date"/><field name="nominal" class="java.math.BigDecimal"/><field name="metode" class="java.lang.String"/><field name="status_pembayaran" class="java.lang.String"/><field name="id_pendaftaran" class="java.lang.Integer"/><field name="nim" class="java.lang.String"/><field name="nama_peserta" class="java.lang.String"/><field name="nama_kelas" class="java.lang.String"/><field name="nama_kursus" class="java.lang.String"/>
-<title><band height="48"><staticText><reportElement x="0" y="6" width="802" height="28"/><textElement textAlignment="Center"><font size="17" isBold="true"/></textElement><text><![CDATA[LAPORAN PEMBAYARAN KURSUS]]></text></staticText></band></title>
-<columnHeader><band height="24"><staticText><reportElement x="0" y="0" width="45" height="22"/><textElement><font isBold="true"/></textElement><text><![CDATA[ID]]></text></staticText><staticText><reportElement x="45" y="0" width="55" height="22"/><textElement><font isBold="true"/></textElement><text><![CDATA[Daftar]]></text></staticText><staticText><reportElement x="100" y="0" width="80" height="22"/><textElement><font isBold="true"/></textElement><text><![CDATA[NIM]]></text></staticText><staticText><reportElement x="180" y="0" width="140" height="22"/><textElement><font isBold="true"/></textElement><text><![CDATA[Peserta]]></text></staticText><staticText><reportElement x="320" y="0" width="120" height="22"/><textElement><font isBold="true"/></textElement><text><![CDATA[Kelas]]></text></staticText><staticText><reportElement x="440" y="0" width="90" height="22"/><textElement><font isBold="true"/></textElement><text><![CDATA[Tanggal]]></text></staticText><staticText><reportElement x="530" y="0" width="100" height="22"/><textElement><font isBold="true"/></textElement><text><![CDATA[Nominal]]></text></staticText><staticText><reportElement x="630" y="0" width="85" height="22"/><textElement><font isBold="true"/></textElement><text><![CDATA[Metode]]></text></staticText><staticText><reportElement x="715" y="0" width="87" height="22"/><textElement><font isBold="true"/></textElement><text><![CDATA[Status]]></text></staticText></band></columnHeader>
-<detail><band height="22"><textField><reportElement x="0" y="0" width="45" height="20"/><textFieldExpression><![CDATA[$F{id_pembayaran}]]></textFieldExpression></textField><textField><reportElement x="45" y="0" width="55" height="20"/><textFieldExpression><![CDATA[$F{id_pendaftaran}]]></textFieldExpression></textField><textField><reportElement x="100" y="0" width="80" height="20"/><textFieldExpression><![CDATA[$F{nim}]]></textFieldExpression></textField><textField><reportElement x="180" y="0" width="140" height="20"/><textFieldExpression><![CDATA[$F{nama_peserta}]]></textFieldExpression></textField><textField><reportElement x="320" y="0" width="120" height="20"/><textFieldExpression><![CDATA[$F{nama_kelas}]]></textFieldExpression></textField><textField><reportElement x="440" y="0" width="90" height="20"/><textFieldExpression><![CDATA[$F{tanggal_bayar}]]></textFieldExpression></textField><textField pattern="Rp #,##0"><reportElement x="530" y="0" width="100" height="20"/><textElement textAlignment="Right"/><textFieldExpression><![CDATA[$F{nominal}]]></textFieldExpression></textField><textField><reportElement x="630" y="0" width="85" height="20"/><textFieldExpression><![CDATA[$F{metode}]]></textFieldExpression></textField><textField><reportElement x="715" y="0" width="87" height="20"/><textFieldExpression><![CDATA[$F{status_pembayaran}]]></textFieldExpression></textField></band></detail>
-<pageFooter><band height="22"><textField><reportElement x="680" y="2" width="120" height="18"/><textElement textAlignment="Right"/><textFieldExpression><![CDATA["Halaman " + $V{PAGE_NUMBER}]]></textFieldExpression></textField></band></pageFooter>
+<!-- Created with Jaspersoft Studio version 6.21.5.final using JasperReports Library version 6.21.5-74d586df47b25dbd05bd0957999819196e59934a  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="laporan_pembayaran" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f87a5e7f-3ac6-46ff-a7c2-b6d33e406b2d">
+	<parameter name="P_TANGGAL_AWAL" class="java.sql.Date">
+		<defaultValueExpression><![CDATA[java.sql.Date.valueOf("2026-11-01")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_TANGGAL_AKHIR" class="java.sql.Date">
+		<defaultValueExpression><![CDATA[java.sql.Date.valueOf("2026-11-30")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    pb.id_pembayaran,
+    pb.tanggal_bayar,
+    pb.nominal,
+    pb.metode,
+    pb.status AS status_pembayaran,
+    p.id_pendaftaran,
+    ps.nim,
+    ps.nama AS nama_peserta,
+    kls.nama_kelas,
+    krs.nama_kursus
+FROM pembayaran pb
+INNER JOIN pendaftaran p
+    ON pb.id_pendaftaran = p.id_pendaftaran
+INNER JOIN peserta ps
+    ON p.id_peserta = ps.id_peserta
+INNER JOIN kelas kls
+    ON p.id_kelas = kls.id_kelas
+INNER JOIN kursus krs
+    ON kls.id_kursus = krs.id_kursus
+WHERE pb.tanggal_bayar BETWEEN $P{P_TANGGAL_AWAL}
+                          AND $P{P_TANGGAL_AKHIR}
+ORDER BY pb.tanggal_bayar, pb.id_pembayaran]]>
+	</queryString>
+	<field name="id_pembayaran" class="java.lang.Integer"/>
+	<field name="tanggal_bayar" class="java.sql.Date"/>
+	<field name="nominal" class="java.math.BigDecimal"/>
+	<field name="metode" class="java.lang.String"/>
+	<field name="status_pembayaran" class="java.lang.String"/>
+	<field name="id_pendaftaran" class="java.lang.Integer"/>
+	<field name="nim" class="java.lang.String"/>
+	<field name="nama_peserta" class="java.lang.String"/>
+	<field name="nama_kelas" class="java.lang.String"/>
+	<field name="nama_kursus" class="java.lang.String"/>
+	<variable name="TOTAL_NOMINAL" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{nominal}]]></variableExpression>
+	</variable>
+	<title>
+		<band height="62">
+			<staticText>
+				<reportElement x="0" y="4" width="802" height="28" uuid="7bbf19a1-3189-4a99-8c93-fa0342b34c33"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LAPORAN PEMBAYARAN KURSUS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="34" width="802" height="18" uuid="59a1bfa8-5f0d-4ec1-a8cd-b255164014fe"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[SIKURSUS Desktop - Pemrograman Berorientasi Objek]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="58" width="802" height="1" uuid="a50a1d05-1fbe-4e3d-b84c-9bed36ca8509"/>
+			</line>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="24">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="35" height="24" backcolor="#DDEFE9" uuid="c6beaf3d-b312-4cc1-88d1-8cd41c42b0c2"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ID]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="35" y="0" width="70" height="24" backcolor="#DDEFE9" uuid="5622a904-5d1d-4275-bea9-8a5224d808e9"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tanggal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="105" y="0" width="65" height="24" backcolor="#DDEFE9" uuid="f0dc1b9f-b6f5-4ed6-b178-3841321b7eec"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NIM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="170" y="0" width="130" height="24" backcolor="#DDEFE9" uuid="09c66dc8-486c-4977-a95a-cd32daed6ff4"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Peserta]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="300" y="0" width="95" height="24" backcolor="#DDEFE9" uuid="1784b3f8-1605-45e8-9261-f56b8ea3a8a2"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Kelas]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="395" y="0" width="150" height="24" backcolor="#DDEFE9" uuid="f517a3be-08ba-4ac1-ad7e-8b71cad90c1f"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Kursus]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="545" y="0" width="100" height="24" backcolor="#DDEFE9" uuid="3806f55d-61e1-4e70-9618-616be91fa3fe"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nominal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="645" y="0" width="70" height="24" backcolor="#DDEFE9" uuid="42caa6ef-1295-4110-bfc5-cd39011bf260"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Metode]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="715" y="0" width="87" height="24" backcolor="#DDEFE9" uuid="30fc9f79-7c7d-4665-8075-6874c43bc48f"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Status]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="22">
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="35" height="22" uuid="0e3ca5e9-ff98-4466-86c8-675914fefb56"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{id_pembayaran}]]></textFieldExpression>
+			</textField>
+			<textField pattern="yyyy-MM-dd" isBlankWhenNull="true">
+				<reportElement x="35" y="0" width="70" height="22" uuid="37a677bb-9b2e-43d8-a294-5736ad8a9fcc"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tanggal_bayar}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="105" y="0" width="65" height="22" uuid="1ff6fa30-eac4-4549-9f93-f18bfc8662e4"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nim}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="170" y="0" width="130" height="22" uuid="ab774a2d-d1f9-4916-9f95-2c02b38f5061"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nama_peserta}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="300" y="0" width="95" height="22" uuid="47646719-4977-453e-b20a-b499bab79253"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nama_kelas}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="395" y="0" width="150" height="22" uuid="cae4a5e1-1f86-4dd3-907f-17380b3d908c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nama_kursus}]]></textFieldExpression>
+			</textField>
+			<textField pattern="Rp #,##0" isBlankWhenNull="true">
+				<reportElement x="545" y="0" width="100" height="22" uuid="26c885cb-5fac-4625-8fe5-9a33eee15b8a"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nominal}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="645" y="0" width="70" height="22" uuid="e21da0e1-df48-44c2-8f7c-6a788a7a61d3"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{metode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="715" y="0" width="87" height="22" uuid="9248d17b-1d7d-4a42-bcc3-d251095eaf75"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{status_pembayaran}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="24">
+			<line>
+				<reportElement x="0" y="0" width="802" height="1" uuid="cf874e43-5091-481b-8284-e3add75e765f"/>
+			</line>
+			<textField>
+				<reportElement x="0" y="4" width="300" height="18" uuid="99227c66-585f-4c16-bb24-216f4ec94ebc"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Dicetak: " + new java.text.SimpleDateFormat("dd-MM-yyyy HH:mm").format(new java.util.Date())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="652" y="4" width="150" height="18" uuid="fbcde8b4-3706-49eb-9148-0fbe9363a558"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Halaman " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="26">
+			<textField>
+				<reportElement x="0" y="6" width="400" height="18" uuid="6d3ef717-2c88-4763-a184-afb1d66e82f5"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total transaksi: " + $V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="Rp #,##0">
+				<reportElement x="402" y="6" width="400" height="18" uuid="287172f5-4689-4143-9148-e182d1ede8cc"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{TOTAL_NOMINAL}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
 </jasperReport>

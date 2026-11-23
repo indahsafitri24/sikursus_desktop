@@ -2,6 +2,8 @@ package util;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public final class Validation {
     private Validation() {}
@@ -33,10 +35,13 @@ public final class Validation {
     }
 
     public static Date date(String value, String label) {
+        String text = required(value, label);   // kosong -> "... wajib diisi"
         try {
-            return Date.valueOf(required(value, label));
-        } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException(label + " harus berformat yyyy-MM-dd");
+            // LocalDate.parse ketat: 2026-11-31 atau 2026-02-30 langsung ditolak
+            return Date.valueOf(LocalDate.parse(text));
+        } catch (DateTimeParseException ex) {
+            throw new IllegalArgumentException(
+                    label + " harus berformat yyyy-MM-dd dan tanggalnya valid");
         }
     }
 }

@@ -852,15 +852,26 @@ public class PendaftaranFrame extends JFrame {
                 e -> ReportService.showPendaftaranSemua(this)
         );
 
-        terpilih.addActionListener(e -> {
-            if (selected < 0) {
+                terpilih.addActionListener(e -> {
+
+            int row = table.getSelectedRow();
+
+            if (row == -1) {
                 JOptionPane.showMessageDialog(
                         this,
-                        "Pilih baris pendaftaran."
+                        "Pilih satu data pendaftaran terlebih dahulu."
                 );
-            } else {
-                ReportService.showPendaftaranById(this, selected);
+                return;
             }
+
+            // Kolom 0 pada JTable adalah ID Pendaftaran
+            int idPendaftaran = Integer.parseInt(
+                    table.getValueAt(row, 0).toString()
+            );
+
+            System.out.println("ID terpilih: " + idPendaftaran);
+
+            ReportService.cetakPendaftaran(idPendaftaran);
         });
 
         cari.addActionListener(e -> load(search.getText()));
